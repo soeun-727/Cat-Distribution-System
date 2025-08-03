@@ -1,13 +1,13 @@
 # Cat-Distribution-System
 To adopt kitties ₍^. .^₎⟆
-
+<br>
 
 ## 페이지 구성
 - home 페이지에서 입양할 고양이 확인 가능(고양이 클릭하면 세부정보 알 수 있음)
 - 우상단에 Login 클릭 시 로그인 페이지로 연결
 - Search 기능이 있음 (취약점 있는 부분)
 - 전체 Search History를 반환하는 기능 구현
-
+<br>
 
 ## 문제 풀이 시나리오
 ### 1. HTTP history를 통해 WebSocket 확인
