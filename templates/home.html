@@ -1,0 +1,83 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Home</title>
+
+  <link rel="stylesheet" href="../static/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Chewy&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2&display=swap" rel="stylesheet">
+  <script src="../static/js/view.js"></script>
+</head>
+
+<body>
+  <div class="container">
+
+  <nav>
+    <a href="home.html">Home</a> |
+    <a href="login.html">Login</a>
+  </nav>
+
+  <h1><a href="home.html">Cat Distribution System</a></h1>
+
+  <form action="search.html" method="GET">
+    <input type="text" name="q" placeholder="Search for kitties!" required>
+    <input type="submit" value="Search">
+  </form>
+
+  <h2>Meet our kitties! ≽^•⩊•^≼</h2>
+
+  <div>
+    <button type="button" id="listBtn">List</button>
+    <button type="button" id="galleryBtn">Gallery</button>
+  </div>
+  <br>
+  <ul class="crop-container gallery-view" id="catList">
+    <li>
+      <a href="/cheese.html">
+        <div class="sct_img">
+        <img src="../static/image/cheese.jpg" alt="Cheese" class="cropped-img">
+        </div>
+        <div>Cheese</div>
+      </a> 
+      18 months old
+    </li>
+
+    <li>
+      <a href="/john.html">
+        <div class="sct_img">
+        <img src="../static/image/john.jpg" alt="John" class="cropped-img">
+        </div>
+        <div>John</div>
+      </a>
+      12 months old
+    </li>
+
+    <li>
+      <a href="/kitty.html">
+        <div class="sct_img">
+        <img src="../static/image/kitty.jpg" alt="Kitty" class="cropped-img">
+        </div>
+        <div>Kitty</div>
+      </a>
+      15 months old
+    </li>
+
+    <li>
+      <a href="/tuna.html">
+        <div class="sct_img">
+        <img src="../static/image/tuna.jpg" alt="Tuna" class="cropped-img">
+        </div>
+        <div>Tuna</div>
+      </a>
+      27 months old
+    </li>
+    
+  </ul>
+
+  <button id="top_btn">↑</button>
+
+</div>
+
+</body>
+</html>

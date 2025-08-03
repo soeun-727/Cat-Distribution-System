@@ -1,0 +1,126 @@
+/*
+
+body {
+    margin-left: 440px; 
+    margin-right: 440px; 
+    padding: 0;
+}
+
+h1 {
+    background-color: rgb(188, 237, 175);
+    text-align: center; 
+    margin: 0;
+}
+
+h2 {
+    background-color: rgb(223, 246, 172);
+    text-align: center;
+
+}
+
+img {
+    width: 100%; 
+    height: auto; 
+}
+    
+*/
+h1 {
+  font-family: 'Chewy', cursive;
+}
+
+body {
+  font-family: 'Baloo 2', cursive;
+  margin-left: 20%;
+  margin-right: 20%;
+  padding: 0;
+}
+
+/* Remove bullets and spacing */
+ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Layout for each <li> (optional legacy rule) */
+#sct_ct_u > li {
+  width: 500px;
+  float: left;
+  margin: 5px;
+  box-sizing: border-box;
+}
+
+/* Crop container (default for gallery) */
+.sct_img {
+  width: 260px;
+  height: 260px;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: mistyrose;
+}
+
+/* Cropped and zoomed image (default) */
+.cropped-img {
+  width: 400px; /* zoomed */
+  height: auto;
+  display: block;
+}
+
+/* Top button */
+#top_btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 10px 13px;
+  font-size: 10px;
+  cursor: pointer;
+  z-index: 1000;
+}
+
+/* Gallery view (default) */
+#catList.gallery-view {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 50px;
+}
+
+#catList.gallery-view li {
+  margin: 0;
+}
+
+/* List view */
+#catList.list-view {
+  display: block;
+}
+
+#catList.list-view li {
+  margin-bottom: 20px;
+}
+
+/* Remove crop in list view */
+#catList.list-view .sct_img {
+  width: 100%;
+  height: 700px;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Show full image in list view */
+#catList.list-view .cropped-img {
+  width: auto;
+  height: 100%;
+}
+
+a {
+  text-decoration: none;  /* Remove underline */
+  color: inherit;         /* Use the same color as surrounding text */
+}
+
+a:visited {
+  color: inherit;         /* Prevent color change after clicked */
+}
+
