@@ -1,6 +1,6 @@
 # Cat-Distribution-System
 To adopt kitties ₍^. .^₎⟆
-<br>
+<br><br>
 
 ## 페이지 구성
 - home 페이지에서 입양할 고양이 확인 가능(고양이 클릭하면 세부정보 알 수 있음)
@@ -32,4 +32,3 @@ To adopt kitties ₍^. .^₎⟆
 - WebSocket 연결 → "READY" 전송 → 전체 히스토리 응답 → 공격자 서버로 유출
 ### 6. 전송된 메시지 분석해서 admin 정보 획득
 - 로그인 하면 성공
-### 7. admin으로 로그인하면 성공
