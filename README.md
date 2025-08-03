@@ -1,11 +1,13 @@
 # Cat-Distribution-System
 To adopt kitties ₍^. .^₎⟆
 
+
 ## 페이지 구성
 - home 페이지에서 입양할 고양이 확인 가능(고양이 클릭하면 세부정보 알 수 있음)
 - 우상단에 Login 클릭 시 로그인 페이지로 연결
 - Search 기능이 있음 (취약점 있는 부분)
 - 전체 Search History를 반환하는 기능 구현
+
 
 ## 문제 풀이 시나리오
 ### 1. HTTP history를 통해 WebSocket 확인
@@ -30,4 +32,4 @@ To adopt kitties ₍^. .^₎⟆
 - WebSocket 연결 → "READY" 전송 → 전체 히스토리 응답 → 공격자 서버로 유출
 ### 6. 전송된 메시지 분석해서 admin 정보 획득
 - 로그인 하면 성공
-### 12. admin으로 로그인하면 성공
+### 7. admin으로 로그인하면 성공
