@@ -124,3 +124,18 @@ a:visited {
   color: inherit;         /* Prevent color change after clicked */
 }
 
+@font-face {
+  font-family: 'Chewy';
+  src: url('/static/fonts/Chewy-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Baloo 2';
+  src: url('/static/fonts/Baloo2-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900; /* 변수 폰트면 가중치 범위 지정 가능 */
+  font-style: normal;
+}
+
+
