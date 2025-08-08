@@ -49,10 +49,36 @@
     <!-- 검색 결과 -->
     <h2>Search results for "{{ search_term }}"</h2>
 
-    <ul>
-      <!--검색결과 나오게 코딩 필요-->
-    </ul>
+    {% if cats %}
+      <ul class="crop-container gallery-view" id="catList">
+        {% for cat in cats %}
+          <li>
+            <a href="{{ url_for('cat_profile', cat_name=cat.name.lower()) }}">
+              <div class="sct_img">
+                <img src="{{ url_for('static', filename='image/' + cat.image) }}" alt="{{ cat.name }}" class="cropped-img">
+              </div>
+              <div>{{ cat.name }}</div>
+            </a>
+            {{ cat.age }}
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No cats found for "{{ search_term }}".</p>
+    {% endif %}
 
+    <!-- DB 검색 기록 -->
+    {% if results %}
+      <h3>Past Searches</h3>
+      <ul>
+        {% for item in results %}
+          <li>
+            <a href="{{ url_for('search', q=item.search_term) }}">{{ item.search_term }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+    
   </div>
 </body>
 </html>
