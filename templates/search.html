@@ -1,3 +1,4 @@
+<!-- /templates/search.html -->
 <!doctype html>
 <html>
 <head>
@@ -5,26 +6,8 @@
   <title>Search Results</title>
 
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.min.js"></script>
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const socket = io();
-
-      socket.on('connect', () => {
-        console.log('WebSocket connected');
-        socket.send("READY");
-      });
-
-      socket.on('message', (msg) => {
-        console.log("Received from server:", msg);
-        const ul = document.getElementById("historyList");
-        const li = document.createElement("li");
-        li.textContent = msg;
-        ul.appendChild(li);
-      });
-    });
-  </script>
 </head>
+
 <body>
   <div class="container">
 
@@ -35,20 +18,19 @@
 
     <h1><a href="{{ url_for('home') }}">Cat Distribution System</a></h1>
 
-    <!-- Search History (웹소켓 메시지) -->
+    <!-- Search History (실시간 표시) -->
     <h3>Search History</h3>
     <ul id="historyList"></ul>
 
     <!-- 검색 폼 -->
-     <br>
-    <form action="{{ url_for('search') }}" method="GET" id="searchForm">
-      <input type="text" id="searchInput" name="q" placeholder="Search for kitties!" required value="{{ search_term }}">
+    <br>
+    <form id="searchForm" action="{{ url_for('search') }}" method="GET">
+      <input type="text" id="searchInput" lang="en" name="q" placeholder="Search for kitties!" required value="{{ search_term }}">
       <input type="submit" value="Search" />
     </form>
 
     <!-- 검색 결과 -->
     <h2>Search results for "{{ search_term }}"</h2>
-
     {% if cats %}
       <ul class="crop-container gallery-view" id="catList">
         {% for cat in cats %}
@@ -67,18 +49,46 @@
       <p>No cats found for "{{ search_term }}".</p>
     {% endif %}
 
-    <!-- DB 검색 기록 -->
-    {% if results %}
-      <h3>Past Searches</h3>
-      <ul>
-        {% for item in results %}
-          <li>
-            <a href="{{ url_for('search', q=item.search_term) }}">{{ item.search_term }}</a>
-          </li>
-        {% endfor %}
-      </ul>
-    {% endif %}
-    
   </div>
+
+  <!-- Socket.IO -->
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+  <script>
+    const socket = io();
+
+    // 현재 세션 ID
+    const sessionId = document.cookie.split('; ').find(row => row.startsWith('sessionid='))?.split('=')[1];
+
+    // 페이지 로드 시 서버에 준비 신호 보내기
+    socket.emit('ready', { sessionid: sessionId });
+
+    // 실시간 검색 기록 추가
+    socket.on('search_history', (data) => {
+      const li = document.createElement('li');
+      li.textContent = data.search_term;
+      document.getElementById('historyList').prepend(li);
+    });
+
+    socket.on('system', (data) => {
+      console.log(data.msg);
+    });
+
+    // 검색 폼 제출 시 Socket.IO로 검색 전송
+    const searchForm = document.getElementById('searchForm');
+    const searchInput = document.getElementById('searchInput');
+
+    searchForm.addEventListener('submit', (e) => {
+      e.preventDefault(); // 기본 폼 제출 막기
+
+      const term = searchInput.value.trim();
+      if (!term) return;
+
+      socket.emit('search', { sessionid: sessionId, q: term });
+
+      // 검색 후 페이지 새로고침 없이 input 초기화
+      searchInput.value = '';
+    });
+  </script>
+
 </body>
 </html>

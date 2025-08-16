@@ -1,21 +1,4 @@
-#"C:\SISS\HC\Cat-Distribution-System\app.py"
-
-from flask import Flask, request, render_template, make_response, redirect, url_for
-from markupsafe import escape
-from flask_socketio import SocketIO, send
-from flask_sqlalchemy import SQLAlchemy
-from flask import session
-import urllib
-import os
-
-app = Flask(__name__)
-app.secret_key = os.urandom(32)
-socketio = SocketIO(app)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(app.instance_path, 'cds.db')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
-
-session_storage = {}
+#\app.py"
 
 # 성공
 #try:
@@ -27,7 +10,23 @@ session_storage = {}
 #    'guest': 'guest',
 ##    'admin': FLAG
 #}
+# app.py
 
+from flask import Flask, request, render_template, make_response, redirect, url_for
+from markupsafe import escape
+from flask_sqlalchemy import SQLAlchemy
+import os
+from flask_socketio import SocketIO, emit
+
+app = Flask(__name__)
+app.secret_key = os.urandom(32)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(app.instance_path, 'cds.db')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+
+socketio = SocketIO(app, cors_allowed_origins="*")
+
+session_storage = {}
 users = {
     'guest': 'guest',
     'admin': 'temp'
@@ -38,6 +37,8 @@ class Search(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), nullable=True)
     search_term = db.Column(db.String(100), nullable=False)
+
+# ---------------- Routes ---------------- #
 
 @app.route('/')
 def home():
@@ -57,7 +58,6 @@ def login():
     if users[username] != password:
         return render_template('login.html', error="Wrong password", last_user=escape(username))
 
-    # 세션 쿠키 설정 (로그인 성공 시)
     session_id = os.urandom(8).hex()
     session_storage[session_id] = username
     resp = make_response(redirect(url_for('home')))
@@ -65,11 +65,10 @@ def login():
         'sessionid',
         session_id,
         httponly=True,
-        samesite='Strict',  # CTF 기본 보안 설정
-        secure=False        # HTTPS면 True
+        samesite='Strict',
+        secure=False
     )
     return resp
-
 
 @app.route('/search')
 def search():
@@ -100,41 +99,53 @@ def search():
         search_term=query
     )
 
-attack_success_sessions = set()
-
-@socketio.on('message')
-def handle_message(msg):
-    session_id = request.cookies.get('sessionid')
-    username = session_storage.get(session_id)
-
-    if msg == "READY":
-        if session_id in attack_success_sessions:
-            # 익스플로잇 성공 세션은 전체 기록 반환
-            history = Search.query.order_by(Search.id.desc()).all()
-        else:
-            # 로그인한 사용자는 자기 기록만, 로그인 안 한 사용자는 username이 None인 기록 반환
-            if username:
-                history = Search.query.filter_by(username=username).order_by(Search.id.desc()).all()
-            else:
-                history = Search.query.filter_by(username=None).order_by(Search.id.desc()).all()
-
-        for entry in history:
-            send(entry.search_term)
-
-    elif msg == "EXPLOIT_TRIGGER":
-        if session_id:
-            attack_success_sessions.add(session_id)
-            print(f"Attack success session: {session_id}")
-
-    else:
-        print(f"Received unknown message: {msg}")
-
-
 @app.route('/<cat_name>.html')
 def cat_profile(cat_name):
-    return f"This is the profile page for {cat_name.capitalize()}!" 
+    return f"This is the profile page for {cat_name.capitalize()}!"
+
+# ---------------- Socket.IO ---------------- #
+
+@socketio.on('connect')
+def handle_connect():
+    print("Client connected")
+    emit("system", {"msg": "Connected to server"}, room=request.sid)
+
+@socketio.on('ready')
+def handle_ready(data):
+    session_id = data.get("sessionid")
+    username = session_storage.get(session_id) if session_id else None
+
+    if username:
+        history = Search.query.filter_by(username=username).order_by(Search.id.desc()).all()
+    else:
+        history = Search.query.filter_by(username=None).order_by(Search.id.desc()).all()
+
+    for entry in history:
+        emit("search_history", {"search_term": entry.search_term}, room=request.sid)
+
+@socketio.on('search')
+def handle_search(data):
+    session_id = data.get("sessionid")
+    username = session_storage.get(session_id) if session_id else None
+
+    search_term = data.get("q", "").strip()
+    if not search_term:
+        emit("error", {"error": "Empty search term"}, room=request.sid)
+        return
+
+    db.session.add(Search(username=username, search_term=search_term))
+    db.session.commit()
+
+    print(f"[SocketIO] {username} searched for {search_term}")
+    emit("search_history", {"search_term": search_term}, room=request.sid)
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    print("Client disconnected")
+
+# ----------------------------------------------- #
 
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    socketio.run(app, debug=True)
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True)

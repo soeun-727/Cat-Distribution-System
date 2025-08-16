@@ -1,3 +1,5 @@
+<!-- /templates/home.html -->
+
 <!doctype html>
 <html>
 <head>
@@ -19,7 +21,7 @@
   <h1><a href="{{ url_for('home') }}">Cat Distribution System</a></h1>
 
   <form action="{{ url_for('search') }}" method="GET">
-    <input type="text" name="q" placeholder="Search for kitties!" required>
+    <input type="text" name="q" lang="en" placeholder="Search for kitties!" required>
     <input type="submit" value="Search">
   </form>
 
