@@ -73,20 +73,21 @@
       console.log(data.msg);
     });
 
-    // 검색 폼 제출 시 Socket.IO로 검색 전송
+    // 검색 폼 제출 시
     const searchForm = document.getElementById('searchForm');
     const searchInput = document.getElementById('searchInput');
 
     searchForm.addEventListener('submit', (e) => {
-      e.preventDefault(); // 기본 폼 제출 막기
-
       const term = searchInput.value.trim();
       if (!term) return;
 
+      // history만 웹소켓으로 전송
       socket.emit('search', { sessionid: sessionId, q: term });
 
-      // 검색 후 페이지 새로고침 없이 input 초기화
-      searchInput.value = '';
+      // 기본 GET 요청으로 페이지 제출 → 서버에서 filtered_cats 렌더링
+      // e.preventDefault() 제거
+
+      // input 초기화는 GET 요청 후 서버가 다시 렌더링하므로 불필요
     });
   </script>
 

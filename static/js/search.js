@@ -44,16 +44,15 @@ const searchForm = document.getElementById("searchForm");
 const searchInput = document.getElementById("searchInput");
 
 searchForm.addEventListener("submit", function (e) {
-    e.preventDefault();
-
     const query = searchInput.value.trim();
     if (!query) return;
 
-    // Socket.IO로 서버에 검색 이벤트 전송
+    // Socket.IO로 서버에 검색 이벤트 전송 (history만)
     socket.emit("search", { sessionid: sessionid, q: query });
 
-    // 서버에 전송 후 바로 입력 비우기
-    searchInput.value = "";
-    console.log("Socket connected?", socket.connected);
+    // 입력창은 GET 요청으로 페이지 리로드 시 초기화됨
+    // searchInput.value = "";  <-- 필요 없음
 
+    // 페이지 GET 요청으로 이동
+    searchForm.submit(); // e.preventDefault() 제거 대신 수동 제출
 });
