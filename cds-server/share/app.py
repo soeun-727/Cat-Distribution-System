@@ -110,7 +110,7 @@ def handle_connect():
     print("Client connected")
     emit("system", {"msg": "Connected to server"}, room=request.sid)
 
-@socketio.on('ready')
+@socketio.on('READY')
 def handle_ready(data):
     session_id = data.get("sessionid")
     username = session_storage.get(session_id) if session_id else None
