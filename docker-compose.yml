@@ -1,0 +1,26 @@
+version: '3.9'
+
+services:
+  main:
+    build: .
+    container_name: cds-main
+    ports:
+      - "5000:5000"
+    environment:
+      - SECRET_KEY=supersecretkey
+    volumes:
+      - ./instance:/app/instance
+      - ./static:/app/static
+      - ./templates:/app/templates
+    depends_on:
+      - sibling
+
+  sibling:
+    build: ./sibling
+    container_name: cds-sibling
+    ports:
+      - "5001:5000"
+    volumes:
+      - ./sibling/templates:/app/templates
+    environment:
+      - SECRET_KEY=siblingsecretkey

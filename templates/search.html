@@ -60,7 +60,7 @@
     const sessionId = document.cookie.split('; ').find(row => row.startsWith('sessionid='))?.split('=')[1];
 
     // 페이지 로드 시 서버에 준비 신호 보내기
-    socket.emit('ready', { sessionid: sessionId });
+    socket.emit('READY', { sessionid: sessionId });
 
     // 실시간 검색 기록 추가
     socket.on('search_history', (data) => {
@@ -81,13 +81,11 @@
       const term = searchInput.value.trim();
       if (!term) return;
 
-      // history만 웹소켓으로 전송
+      // 실시간 기록만 웹소켓으로 전송
       socket.emit('search', { sessionid: sessionId, q: term });
 
-      // 기본 GET 요청으로 페이지 제출 → 서버에서 filtered_cats 렌더링
+      // 기본 GET 요청으로 페이지 제출 → 서버에서 검색 결과 렌더링
       // e.preventDefault() 제거
-
-      // input 초기화는 GET 요청 후 서버가 다시 렌더링하므로 불필요
     });
   </script>
 

