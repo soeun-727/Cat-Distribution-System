@@ -5,7 +5,7 @@ services:
     build: .
     container_name: cds-main
     ports:
-      - "5000:9000"
+      - "5000:5000" # 호스트 5000 -> 컨테이너 9000
     environment:
       - SECRET_KEY=supersecretkey
     volumes:
@@ -19,7 +19,7 @@ services:
     build: ./sibling
     container_name: cds-sibling
     ports:
-      - "6000"
+      - "5001:5001" # 호스트 5001 -> 컨테이너 6000
     volumes:
       - ./sibling/templates:/app/templates
     environment:

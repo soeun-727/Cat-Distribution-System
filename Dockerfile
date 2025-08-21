@@ -3,7 +3,6 @@
 FROM python:3.11-slim
 
 # 빌드에 필요한 종속성 설치
-# `build-essential`은 gcc, g++, make 등 기본적인 빌드 도구를 포함합니다.
 RUN apt-get update && apt-get install -y \
     build-essential \
     python3-dev \
@@ -23,9 +22,8 @@ COPY . .
 # instance 디렉토리 생성 및 권한 설정
 RUN mkdir -p /app/instance && chmod 777 /app/instance
 
-# 환경변수 설정 (선택, SECRET_KEY 외부에서 전달 가능)
+# 환경변수 설정 (SECRET_KEY는 docker-compose.yml에서 설정)
 ENV FLASK_ENV=production
-ENV SECRET_KEY=supersecretkey
 
 # 포트 오픈
 EXPOSE 5000
