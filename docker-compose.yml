@@ -6,7 +6,7 @@ services:
       dockerfile: Dockerfile
     container_name: cds-web
     ports:
-      - "5000:5000"
+      - "5000:5000" # 호스트 5000 -> 컨테이너 9000
     environment:
       - FLASK_ENV=production
     networks:
@@ -17,17 +17,9 @@ services:
       context: ./sibling
     container_name: cds-sibling
     ports:
-      - "5001:5000"
-    networks:
-      - cds-net
-
-  bot:
-    build:
-      context: ./exploit-bot
-    container_name: cds-bot
-    # 외부에서도 호출해서 /visit, /logs 쓰고 싶다면 포트 공개
-    ports:
-      - "8000:8000"
+      - "5001:5001" # 호스트 5001 -> 컨테이너 6000
+    volumes:
+      - ./sibling/templates:/app/templates
     environment:
       - TARGET_ORIGIN=http://web:5000
       - ADMIN_USER=admin
