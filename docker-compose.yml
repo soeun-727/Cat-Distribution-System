@@ -1,26 +1,40 @@
-version: '3.9'
-
+version: "3.9"
 services:
-  main:
-    build: .
-    container_name: cds-main
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cds-web
     ports:
       - "5000:5000"
     environment:
-      - SECRET_KEY=supersecretkey
-    volumes:
-      - ./instance:/app/instance
-      - ./static:/app/static
-      - ./templates:/app/templates
-    depends_on:
-      - sibling
+      - FLASK_ENV=production
+    networks:
+      - cds-net
 
   sibling:
-    build: ./sibling
+    build:
+      context: ./sibling
     container_name: cds-sibling
     ports:
       - "5001:5000"
-    volumes:
-      - ./sibling/templates:/app/templates
+    networks:
+      - cds-net
+
+  bot:
+    build:
+      context: ./exploit-bot
+    container_name: cds-bot
+    # 외부에서도 호출해서 /visit, /logs 쓰고 싶다면 포트 공개
+    ports:
+      - "8000:8000"
     environment:
-      - SECRET_KEY=siblingsecretkey
+      - TARGET_ORIGIN=http://web:5000
+      - ADMIN_USER=admin
+      - ADMIN_PASS=temp
+    networks:
+      - cds-net
+
+networks:
+  cds-net:
+    driver: bridge
