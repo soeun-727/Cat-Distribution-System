@@ -119,17 +119,9 @@ def search():
 def cat_profile(cat_name):
     return f"This is the profile page for {cat_name.capitalize()}!"
 
-# --- Exploit Route (형제 도메인용) --- #
 @app.route('/exploit')
 def exploit():
-    return """
-    <h1>Exploit Page (sibling domain)</h1>
-    <p>This page simulates a SameSite=Strict bypass attempt.</p>
-    <form action="http://app.local:9000/search" method="GET">
-        <input type="hidden" name="q" value="stolen_from_exploit">
-        <input type="submit" value="Trigger Search on app.local">
-    </form>
-    """
+    return render_template('exploit.html')
 
 # ---------------- Socket.IO ---------------- #
 
