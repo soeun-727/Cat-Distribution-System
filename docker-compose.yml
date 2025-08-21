@@ -1,32 +1,25 @@
-version: "3.9"
+version: "3"
+
 services:
   web:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: cds-web
+    build: .
+    container_name: main_web
     ports:
-      - "5000:5000" # 호스트 5000 -> 컨테이너 9000
+      - "5000:5000"
     environment:
-      - FLASK_ENV=production
-    networks:
-      - cds-net
+      - FLASK_ENV=development
 
   sibling:
-    build:
-      context: ./sibling
-    container_name: cds-sibling
+    build: ./sibling
+    container_name: sibling_web
     ports:
-      - "5001:5001" # 호스트 5001 -> 컨테이너 6000
-    volumes:
-      - ./sibling/templates:/app/templates
-    environment:
-      - TARGET_ORIGIN=http://web:5000
-      - ADMIN_USER=admin
-      - ADMIN_PASS=temp
-    networks:
-      - cds-net
+      - "5001:5000"
 
-networks:
-  cds-net:
-    driver: bridge
+  exploit:
+    build: ./exploit      # exploit 서버 코드가 들어 있는 디렉토리
+    container_name: exploit_server
+    ports:
+      - "8000:8000"
+    environment:
+      - TARGET_ORIGIN=http://web:5000     # 공격자가 "관리자 브라우저"를 흉내낼 때 기준이 되는 도메인
+      - ADMIN_SESSIONID=secret_admin_sid  # 관리자 세션 쿠키 값
