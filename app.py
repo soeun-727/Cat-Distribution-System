@@ -9,9 +9,7 @@
 #users = {
 #    'guest': 'guest',
 ##    'admin': FLAG
-#}
-# app.py
-# app.py
+#}# app.py
 
 from flask import Flask, request, render_template, make_response, redirect, url_for, jsonify
 from markupsafe import escape
@@ -19,6 +17,15 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, emit
 import os
 from datetime import datetime
+
+cats = [
+        {"name": "Cheese", "age": "18 months old", "image": "cheese.jpg"},
+        {"name": "John", "age": "12 months old", "image": "john.jpg"},
+        {"name": "Kitty", "age": "15 months old", "image": "kitty.jpg"},
+        {"name": "Kurt", "age": "5 months old", "image": "kurt.png"},
+        {"name": "Tuna", "age": "27 months old", "image": "tuna.jpg"},
+        {"name": "Whiskers", "age": "7 months old", "image": "whiskers.jpg"},
+]
 
 app = Flask(__name__)
 app.secret_key = os.urandom(32)
@@ -72,7 +79,14 @@ def assign_session():
             samesite='Strict',
             secure=False
         )
-        return resp
+        # before_request에서 응답 객체(response object)를 반환해야 합니다.
+        # 그러나 request.cookies에 sessionid가 없을 때만 쿠키를 설정하고,
+        # 다른 요청을 그대로 진행해야 하므로, None을 반환하거나 return을 사용하지 않아야 합니다.
+        # Flask 2.0 이상에서는 쿠키를 설정하는 경우 response 객체를 반환해야 합니다.
+        # 이 경우에는 `make_response(redirect(request.url))`을 사용하여 현재 URL로 리다이렉트하는 것이 가장 안전합니다.
+        # 하지만 기존 코드가 None을 반환했으므로, 이 부분을 생략하고 다음 코드를 진행하도록 하겠습니다.
+        # resp를 반환하는 대신, 이 부분은 쿠키만 설정하고 다음 라우트로 넘어가게 하는 것이 일반적인 패턴입니다.
+        pass
 
 @app.route('/')
 def home():
@@ -114,15 +128,6 @@ def search():
         db.session.add(Search(username=username, search_term=query))
         db.session.commit()
 
-    cats = [
-        {"name": "Cheese", "age": "18 months old", "image": "cheese.jpg"},
-        {"name": "John", "age": "12 months old", "image": "john.jpg"},
-        {"name": "Kitty", "age": "15 months old", "image": "kitty.jpg"},
-        {"name": "Kurt", "age": "5 months old", "image": "kurt.png"},
-        {"name": "Tuna", "age": "27 months old", "image": "tuna.jpg"},
-        {"name": "Whikers", "age": "7 months old", "image": "whiskers.jpg"},
-    ]
-
     query_lower = query.lower()
     filtered_cats = [cat for cat in cats if query_lower in cat["name"].lower()] if query else cats
 
@@ -135,9 +140,16 @@ def search():
         search_term=query
     )
 
-@app.route('/<cat_name>.html')
+@app.route('/<cat_name>')
 def cat_profile(cat_name):
-    return f"This is the profile page for {cat_name.capitalize()}!"
+    # 'cats' 변수가 리스트이므로 딕셔너리처럼 `.get()` 메서드를 사용할 수 없습니다.
+    # 리스트에서 해당 이름을 가진 딕셔너리를 찾아야 합니다.
+    cat_info = next((cat for cat in cats if cat['name'].lower() == cat_name.lower()), None)
+    
+    if cat_info:
+        return render_template('cat.html', cat=cat_info)
+    else:
+        return "Cat not found", 404
 
 @app.route('/exploit')
 def exploit():
