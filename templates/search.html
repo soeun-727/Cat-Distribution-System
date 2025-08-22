@@ -10,11 +10,15 @@
 <body>
   <div class="container">
 
-    <nav>
-      <a href="{{ url_for('home') }}">Home</a> |
-      <a href="{{ url_for('login') }}">Login</a> |
-      <a href="{{ url_for('exploit') }}">Exploit Server</a>
-    </nav>
+  <nav>
+    <div class="main-nav">
+    <a href="{{ url_for('home') }}">Home</a> |
+    <a href="{{ url_for('login') }}">Login</a>
+    </div>
+    <div class="exploit-nav">
+    <a href="{{ url_for('exploit') }}">Exploit Server</a>
+    </div>
+  </nav>
 
     <h1><a href="{{ url_for('home') }}">Cat Distribution System</a></h1>
 

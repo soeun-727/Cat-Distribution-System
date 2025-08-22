@@ -1,57 +1,34 @@
-from flask import Flask, request, make_response, redirect, url_for
+from flask import Flask, request, render_template, make_response, url_for
 
 app = Flask(__name__)
-app.secret_key = 'sibling-secret-key'
+app.secret_key = "sibling-secret-key"
 
-# 임시 사용자
 users = {
-    'admin': '1P4sSW0rD',
-    'guest': 'guest'
+    "admin": "1P4sSW0rD",
+    "guest": "guest"
 }
 
-@app.route('/')
-def index():
-    return redirect(url_for('login'))
-
-@app.route('/login', methods=['GET', 'POST'])
+@app.route("/login", methods=["GET", "POST"])
 def login():
-    error = ''
-    username = request.values.get('username', '')  # GET/POST 모두 처리
-    password = request.values.get('password', '')
+    error = ""
+    username = request.form.get("username", "") if request.method=="POST" else ""
+    password = request.form.get("password", "") if request.method=="POST" else ""
 
-    if username and (username not in users or users[username] != password):
-        # XSS 발생 (escape 없음)
-        error = f"Invalid login for user: {username}"
+    if username:
+        if username in users and users[username] == password:
+            resp = make_response(f"Welcome {username}!")
+            resp.set_cookie("session", f"{username}-session-value", httponly=True, samesite="Strict")
+            return resp
+        else:
+            error = f"Invalid login for user: {username}"
 
-    if username in users and users[username] == password:
-        resp = make_response(f"Welcome, {username}!")
-        # 세션 쿠키 발급 (SameSite=Strict)
-        resp.set_cookie(
-            'session', 
-            f'{username}-session-value',
-            httponly=True,
-            samesite='Strict'
-        )
-        return resp
+    # 현재 요청 호스트/포트 기준으로 exploit 서버 URL 동적 생성
+    scheme = request.scheme
+    host = request.host.split(':')[0]  # 호스트만
+    exploit_server_url = f"{scheme}://{host}:8000/collect"
 
-    html = f"""
-    <html>
-    <head><title>Login</title></head>
-    <body>
-        <h1>Login (Sibling Domain)</h1>
-        <form method="POST" action="/login">
-            Username: <input name="username" value="{username}"><br>
-            Password: <input type="password" name="password"><br>
-            <input type="submit" value="Login">
-        </form>
-        <p style="color:red;">{error}</p>
-    </body>
-    </html>
-    """
-    response = make_response(html)
-    # sibling domain → 원래 도메인간 접근 테스트용 (실제 도메인 값 넣기)
-    response.headers['Access-Control-Allow-Origin'] = 'https://vulnerable-YOUR-LAB-ID.web-security-academy.net'
-    return response
+    return render_template("login.html", error=error, exploit_server_url=exploit_server_url)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(port=5001, debug=True)
+

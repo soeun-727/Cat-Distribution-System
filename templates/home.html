@@ -12,9 +12,13 @@
   <div class="container">
 
   <nav>
+    <div class="main-nav">
     <a href="{{ url_for('home') }}">Home</a> |
-    <a href="{{ url_for('login') }}">Login</a> |
+    <a href="{{ url_for('login') }}">Login</a>
+    </div>
+    <div class="exploit-nav">
     <a href="{{ url_for('exploit') }}">Exploit Server</a>
+    </div>
   </nav>
 
   <h1><a href="{{ url_for('home') }}">Cat Distribution System</a></h1>
@@ -61,7 +65,15 @@
       </a>
       15 months old
     </li>
-
+    <li>
+      <a href="{{ url_for('cat_profile', cat_name='kurt') }}">
+        <div class="sct_img">
+        <img src="{{ url_for('static', filename='image/kurt.png') }}" alt="Kitty" class="cropped-img">
+        </div>
+        <div>Kurt</div>
+      </a>
+      5 months old
+    </li>
     <li>
       <a href="{{ url_for('cat_profile', cat_name='tuna') }}">
         <div class="sct_img">
@@ -71,7 +83,16 @@
       </a>
       27 months old
     </li>
-    
+
+     <li>
+      <a href="{{ url_for('cat_profile', cat_name='whiskers') }}">
+        <div class="sct_img">
+        <img src="{{ url_for('static', filename='image/whiskers.jpg') }}" alt="Tuna" class="cropped-img">
+        </div>
+        <div>Whiskers</div>
+      </a>
+      7 months old
+    </li>   
   </ul>
 
   <button id="top_btn">↑</button>

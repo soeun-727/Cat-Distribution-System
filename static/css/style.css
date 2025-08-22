@@ -1,29 +1,3 @@
-/*
-
-body {
-    margin-left: 440px; 
-    margin-right: 440px; 
-    padding: 0;
-}
-
-h1 {
-    background-color: rgb(188, 237, 175);
-    text-align: center; 
-    margin: 0;
-}
-
-h2 {
-    background-color: rgb(223, 246, 172);
-    text-align: center;
-
-}
-
-img {
-    width: 100%; 
-    height: auto; 
-}
-    
-*/
 h1 {
   font-family: 'Chewy', cursive;
 }
@@ -35,14 +9,12 @@ body {
   padding: 0;
 }
 
-/* Remove bullets and spacing */
 ul {
   list-style-type: none;
   padding: 0;
   margin: 0;
 }
 
-/* Layout for each <li> (optional legacy rule) */
 #sct_ct_u > li {
   width: 500px;
   float: left;
@@ -50,7 +22,6 @@ ul {
   box-sizing: border-box;
 }
 
-/* Crop container (default for gallery) */
 .sct_img {
   width: 260px;
   height: 260px;
@@ -61,14 +32,12 @@ ul {
   background-color: mistyrose;
 }
 
-/* Cropped and zoomed image (default) */
 .cropped-img {
-  width: 400px; /* zoomed */
+  width: 400px; 
   height: auto;
   display: block;
 }
 
-/* Top button */
 #top_btn {
   position: fixed;
   bottom: 20px;
@@ -79,7 +48,6 @@ ul {
   z-index: 1000;
 }
 
-/* Gallery view (default) */
 #catList.gallery-view {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -90,7 +58,6 @@ ul {
   margin: 0;
 }
 
-/* List view */
 #catList.list-view {
   display: block;
 }
@@ -99,7 +66,6 @@ ul {
   margin-bottom: 20px;
 }
 
-/* Remove crop in list view */
 #catList.list-view .sct_img {
   width: 100%;
   height: 700px;
@@ -109,19 +75,18 @@ ul {
   align-items: center;
 }
 
-/* Show full image in list view */
 #catList.list-view .cropped-img {
   width: auto;
   height: 100%;
 }
 
 a {
-  text-decoration: none;  /* Remove underline */
-  color: inherit;         /* Use the same color as surrounding text */
+  text-decoration: none;  
+  color: inherit;        
 }
 
 a:visited {
-  color: inherit;         /* Prevent color change after clicked */
+  color: inherit;         
 }
 
 @font-face {
@@ -134,8 +99,55 @@ a:visited {
 @font-face {
   font-family: 'Baloo 2';
   src: url('/static/fonts/Baloo2-VariableFont_wght.ttf') format('truetype');
-  font-weight: 100 900; /* 변수 폰트면 가중치 범위 지정 가능 */
+  font-weight: 100 900; 
   font-style: normal;
 }
 
+input[type="text"],
+input[type="password"]{
+    width: 300px; 
+    padding: 10px 15px; 
+    border: 2px solid #ccc;
+    border-radius: 20px; 
+    font-size: 16px; 
+    font-family: 'Baloo 2', cursive; 
+    transition: all 0.3s ease; 
+}
 
+input[type="text"],
+input[type="password"]:focus {
+    border-color: lightgray; 
+    box-shadow: 0 0 8px rgba(121, 166, 208, 0.5); 
+    outline: none; 
+}
+
+input[type="submit"] {
+    padding: 10px 20px; 
+    border: none; 
+    border-radius: 20px; 
+    background-color: mistyrose; 
+    color: black; 
+    font-size: 16px; 
+    font-weight: bold; 
+    font-family: 'Baloo 2', cursive; 
+    cursor: pointer; 
+    transition: background-color 0.3s ease; 
+}
+
+
+input[type="submit"]:hover {
+    background-color: lightpink; 
+}
+
+/* 네비게이션 바 전체를 가로 정렬합니다. */
+nav {
+    display: flex;
+    justify-content: space-between; /* 양 끝 정렬 */
+    width: 100%; /* 너비를 100%로 설정하여 부모 요소에 맞춤 */
+    padding: 10px 0;
+}
+
+/* exploit-nav를 오른쪽으로 밀어냅니다. */
+.exploit-nav {
+    margin-left: auto;
+}

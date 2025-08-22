@@ -11,50 +11,68 @@
 ##    'admin': FLAG
 #}
 # app.py
+# app.py
 
-from flask import Flask, request, render_template, make_response, redirect, url_for
+from flask import Flask, request, render_template, make_response, redirect, url_for, jsonify
 from markupsafe import escape
 from flask_sqlalchemy import SQLAlchemy
-import os
 from flask_socketio import SocketIO, emit
+import os
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = os.urandom(32)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(app.instance_path, 'cds.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
-
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-session_storage = {}
+# ----------------- FLAG / Users ----------------- #
+try:
+    FLAG = open("./flag.txt", "r").read()
+except:
+    FLAG = "[**FLAG**]"
+
 users = {
     'guest': 'guest',
-    'admin': 'temp'
+    'admin': FLAG
 }
 
+# ----------------- Session / Storage ----------------- #
+session_storage = {}
+logs_by_job = {}  # exploit logs 저장
+
+def log_event(job_id, msg):
+    if job_id not in logs_by_job:
+        logs_by_job[job_id] = []
+    logs_by_job[job_id].append({
+        "ts": datetime.utcnow().isoformat(),
+        "msg": msg
+    })
+
+# ----------------- Models ----------------- #
 class Search(db.Model):
     __tablename__ = 'Search'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), nullable=True)
     search_term = db.Column(db.String(100), nullable=False)
 
-# ---------------- Routes ---------------- #
+# ----------------- Routes ----------------- #
 
 @app.before_request
 def assign_session():
-    """방문 시 로그인 여부와 상관없이 세션 쿠키를 부여"""
     if 'sessionid' not in request.cookies:
         session_id = os.urandom(8).hex()
-        session_storage[session_id] = None  # 로그인 안 한 상태
+        session_storage[session_id] = None
         resp = make_response()
         resp.set_cookie(
             'sessionid',
             session_id,
             httponly=True,
-            samesite='Strict',  # SameSite=Strict
+            samesite='Strict',
             secure=False
         )
-        return resp  # 요청 처리 전에 쿠키 발급
+        return resp
 
 @app.route('/')
 def home():
@@ -100,7 +118,9 @@ def search():
         {"name": "Cheese", "age": "18 months old", "image": "cheese.jpg"},
         {"name": "John", "age": "12 months old", "image": "john.jpg"},
         {"name": "Kitty", "age": "15 months old", "image": "kitty.jpg"},
+        {"name": "Kurt", "age": "5 months old", "image": "kurt.png"},
         {"name": "Tuna", "age": "27 months old", "image": "tuna.jpg"},
+        {"name": "Whikers", "age": "7 months old", "image": "whiskers.jpg"},
     ]
 
     query_lower = query.lower()
@@ -123,7 +143,34 @@ def cat_profile(cat_name):
 def exploit():
     return render_template('exploit.html')
 
-# ---------------- Socket.IO ---------------- #
+# ----------------- Exploit / Logs ----------------- #
+
+@app.route("/deliver", methods=["POST"])
+def deliver():
+    data = request.get_json()
+    payload = data.get("payload")
+    job_id = str(datetime.utcnow().timestamp())
+    logs_by_job[job_id] = []
+    # exploit.js가 fetch로 victim에 전달
+    return jsonify({"jobId": job_id})
+
+@app.route("/logs", methods=["GET"])
+def get_logs():
+    job_id = request.args.get("id")
+    if not job_id:
+        return jsonify({"error": "job id required"}), 400
+    items = logs_by_job.get(job_id, [])
+    return jsonify({"items": items})
+
+@app.route("/victim-callback", methods=["POST"])
+def victim_callback():
+    data = request.get_json()
+    job_id = data.get("jobId")
+    info = data.get("info")
+    log_event(job_id, f"Victim received payload: {info}")
+    return jsonify({"ok": True})
+
+# ----------------- Socket.IO ----------------- #
 
 @socketio.on('connect')
 def handle_connect():
@@ -159,15 +206,13 @@ def handle_search(data):
     db.session.commit()
 
     print(f"[SocketIO] {username} searched for {search_term}")
-
     emit("search_history", {"search_term": search_term}, room=request.sid)
 
 @socketio.on('disconnect')
 def handle_disconnect():
     print(f"[SocketIO] Client disconnected: {request.sid}")
 
-# ----------------------------------------------- #
-
+# ----------------- Main ----------------- #
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
