@@ -79,14 +79,20 @@ def assign_session():
             samesite='Strict',
             secure=False
         )
-        # before_request에서 응답 객체(response object)를 반환해야 합니다.
-        # 그러나 request.cookies에 sessionid가 없을 때만 쿠키를 설정하고,
-        # 다른 요청을 그대로 진행해야 하므로, None을 반환하거나 return을 사용하지 않아야 합니다.
-        # Flask 2.0 이상에서는 쿠키를 설정하는 경우 response 객체를 반환해야 합니다.
-        # 이 경우에는 `make_response(redirect(request.url))`을 사용하여 현재 URL로 리다이렉트하는 것이 가장 안전합니다.
-        # 하지만 기존 코드가 None을 반환했으므로, 이 부분을 생략하고 다음 코드를 진행하도록 하겠습니다.
-        # resp를 반환하는 대신, 이 부분은 쿠키만 설정하고 다음 라우트로 넘어가게 하는 것이 일반적인 패턴입니다.
         pass
+def csrf_protect():
+    if request.method == "POST" and request.endpoint == "login":
+        token = session.get("_csrf_token")
+        form_token = request.form.get("_csrf_token")
+        if not token or token != form_token:
+            return "CSRF token invalid", 400
+
+def generate_csrf_token():
+    if "_csrf_token" not in session:
+        session["_csrf_token"] = secrets.token_hex(16)
+    return session["_csrf_token"]
+
+app.jinja_env.globals["csrf_token"] = generate_csrf_token
 
 @app.route('/')
 def home():
@@ -140,13 +146,14 @@ def search():
         search_term=query
     )
 
-@app.route('/<cat_name>')
+@app.route('/cat/<cat_name>')
 def cat_profile(cat_name):
-    # 'cats' 변수가 리스트이므로 딕셔너리처럼 `.get()` 메서드를 사용할 수 없습니다.
-    # 리스트에서 해당 이름을 가진 딕셔너리를 찾아야 합니다.
-    cat_info = next((cat for cat in cats if cat['name'].lower() == cat_name.lower()), None)
+    safe_name = escape(cat_name)
+
+    cat_info = next((cat for cat in cats if cat['name'].lower() == safe_name.lower()), None)
     
     if cat_info:
+        # cat.html에서 Jinja2가 자동 escape 처리
         return render_template('cat.html', cat=cat_info)
     else:
         return "Cat not found", 404
