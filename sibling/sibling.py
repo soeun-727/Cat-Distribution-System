@@ -1,6 +1,6 @@
 from flask import Flask, request, render_template, make_response, url_for
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder=".")
 app.secret_key = "sibling-secret-key"
 
 users = {
@@ -30,5 +30,5 @@ def login():
     return render_template("login.html", error=error, exploit_server_url=exploit_server_url)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5001, debug=True)
 
