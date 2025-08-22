@@ -30,5 +30,5 @@ def login():
     return render_template("login.html", error=error, exploit_server_url=exploit_server_url)
 
 if __name__ == "__main__":
-    app.run(port=5001, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
 
