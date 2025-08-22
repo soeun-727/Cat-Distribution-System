@@ -1,0 +1,10 @@
+<script>
+const jobId = "{{ jobId }}";
+fetch(`/logs?id=${jobId}`)
+  .then(r => r.json())
+  .then(data => {
+      data.items.forEach(item => {
+          console.log(`[${new Date(item.ts).toLocaleTimeString()}] ${item.msg}`);
+      });
+  });
+</script>

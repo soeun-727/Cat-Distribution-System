@@ -170,16 +170,16 @@ def deliver():
     payload = data.get("payload")
     job_id = str(datetime.utcnow().timestamp())
     logs_by_job[job_id] = []
-    # exploit.js가 fetch로 victim에 전달
+    log_event(job_id, f"READY processed for payload: {payload}")
+
     return jsonify({"jobId": job_id})
 
-@app.route("/logs", methods=["GET"])
-def get_logs():
-    job_id = request.args.get("id")
+@app.route("/logs")
+def view_logs():
+    job_id = request.args.get("jobId")
     if not job_id:
-        return jsonify({"error": "job id required"}), 400
-    items = logs_by_job.get(job_id, [])
-    return jsonify({"items": items})
+        return "Job ID required", 400
+    return render_template("logs.html", jobId=job_id)
 
 @app.route("/victim-callback", methods=["POST"])
 def victim_callback():

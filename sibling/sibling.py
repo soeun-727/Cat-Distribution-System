@@ -8,7 +8,7 @@ users = {
     "guest": "guest"
 }
 
-@app.route("/login", methods=["GET", "POST"])
+@app.route("/", methods=["GET", "POST"])
 def login():
     error = ""
     username = request.form.get("username", "") if request.method=="POST" else ""
