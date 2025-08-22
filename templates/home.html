@@ -17,9 +17,24 @@
     <a href="{{ url_for('login') }}">Login</a>
     </div>
     <div class="exploit-nav">
-    <a href="{{ url_for('exploit') }}">Exploit Server</a>
+    <a id="exploitLink" target="_blank">Exploit Server</a>
     </div>
   </nav>
+<script>
+  const exploitLink = document.getElementById("exploitLink");
+  const protocol = window.location.protocol;
+  const host = window.location.hostname;
+  const url = `${protocol}//${host}:8000/exploit`; // 8000 포트 익스플로잇 서버
+
+  // 링크 클릭 시 새 탭 열기
+  exploitLink.addEventListener("click", (e) => {
+    e.preventDefault(); // 기본 링크 이동 방지
+    window.open(url, "_blank");
+  });
+
+  // 링크에 href도 설정
+  exploitLink.href = url;
+</script>
 
   <h1><a href="{{ url_for('home') }}">Cat Distribution System</a></h1>
 

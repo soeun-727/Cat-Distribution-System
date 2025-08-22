@@ -1,32 +1,12 @@
 #\app.py"
 
-# 성공
-#try:
-#    FLAG = open("./flag.txt", "r").read()
-#except:
-#    FLAG = "[**FLAG**]"
-#
-#users = {
-#    'guest': 'guest',
-##    'admin': FLAG
-#}# app.py
-
-from flask import Flask, request, render_template, make_response, redirect, url_for, jsonify
-from markupsafe import escape
+from flask import Flask, request, render_template, make_response, redirect, url_for, escape
 from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, emit
 import os
 from datetime import datetime
 
-cats = [
-        {"name": "Cheese", "age": "18 months old", "image": "cheese.jpg"},
-        {"name": "John", "age": "12 months old", "image": "john.jpg"},
-        {"name": "Kitty", "age": "15 months old", "image": "kitty.jpg"},
-        {"name": "Kurt", "age": "5 months old", "image": "kurt.png"},
-        {"name": "Tuna", "age": "27 months old", "image": "tuna.jpg"},
-        {"name": "Whiskers", "age": "7 months old", "image": "whiskers.jpg"},
-]
-
+# ----------------- Flask / DB / SocketIO ----------------- #
 app = Flask(__name__)
 app.secret_key = os.urandom(32)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(app.instance_path, 'cds.db')
@@ -47,15 +27,6 @@ users = {
 
 # ----------------- Session / Storage ----------------- #
 session_storage = {}
-logs_by_job = {}  # exploit logs 저장
-
-def log_event(job_id, msg):
-    if job_id not in logs_by_job:
-        logs_by_job[job_id] = []
-    logs_by_job[job_id].append({
-        "ts": datetime.utcnow().isoformat(),
-        "msg": msg
-    })
 
 # ----------------- Models ----------------- #
 class Search(db.Model):
@@ -65,7 +36,6 @@ class Search(db.Model):
     search_term = db.Column(db.String(100), nullable=False)
 
 # ----------------- Routes ----------------- #
-
 @app.before_request
 def assign_session():
     if 'sessionid' not in request.cookies:
@@ -79,20 +49,6 @@ def assign_session():
             samesite='Strict',
             secure=False
         )
-        pass
-def csrf_protect():
-    if request.method == "POST" and request.endpoint == "login":
-        token = session.get("_csrf_token")
-        form_token = request.form.get("_csrf_token")
-        if not token or token != form_token:
-            return "CSRF token invalid", 400
-
-def generate_csrf_token():
-    if "_csrf_token" not in session:
-        session["_csrf_token"] = secrets.token_hex(16)
-    return session["_csrf_token"]
-
-app.jinja_env.globals["csrf_token"] = generate_csrf_token
 
 @app.route('/')
 def home():
@@ -124,6 +80,15 @@ def login():
     )
     return resp
 
+cats = [
+    {"name": "Cheese", "age": "18 months old", "image": "cheese.jpg"},
+    {"name": "John", "age": "12 months old", "image": "john.jpg"},
+    {"name": "Kitty", "age": "15 months old", "image": "kitty.jpg"},
+    {"name": "Kurt", "age": "5 months old", "image": "kurt.png"},
+    {"name": "Tuna", "age": "27 months old", "image": "tuna.jpg"},
+    {"name": "Whiskers", "age": "7 months old", "image": "whiskers.jpg"},
+]
+
 @app.route('/search')
 def search():
     query = request.args.get('q', '').strip()
@@ -136,7 +101,6 @@ def search():
 
     query_lower = query.lower()
     filtered_cats = [cat for cat in cats if query_lower in cat["name"].lower()] if query else cats
-
     history = Search.query.order_by(Search.id.desc()).all()
 
     return render_template(
@@ -149,57 +113,14 @@ def search():
 @app.route('/cat/<cat_name>')
 def cat_profile(cat_name):
     safe_name = escape(cat_name)
-
     cat_info = next((cat for cat in cats if cat['name'].lower() == safe_name.lower()), None)
     
     if cat_info:
-        # cat.html에서 Jinja2가 자동 escape 처리
         return render_template('cat.html', cat=cat_info)
     else:
         return "Cat not found", 404
 
-@app.route('/exploit')
-def exploit():
-    return render_template('exploit.html')
-
-# ----------------- Exploit / Logs ----------------- #
-
-@app.route("/deliver", methods=["POST"])
-def deliver():
-    data = request.get_json()
-    payload = data.get("payload")
-    job_id = str(datetime.utcnow().timestamp())
-    logs_by_job[job_id] = []
-    log_event(job_id, f"READY processed for payload: {payload}")
-
-    return jsonify({"jobId": job_id})
-
-@app.route("/logs")
-def view_logs():
-    job_id = request.args.get("jobId")
-    if not job_id:
-        return "Job ID required", 400
-    return render_template("logs.html", jobId=job_id)
-
-@app.route("/logs/data")
-def logs_data():
-    job_id = request.args.get("jobId")
-    if not job_id:
-        return jsonify({"error": "job id required"}), 400
-    items = logs_by_job.get(job_id, [])
-    return jsonify({"items": items})
-
-
-@app.route("/victim-callback", methods=["POST"])
-def victim_callback():
-    data = request.get_json()
-    job_id = data.get("jobId")
-    info = data.get("info")
-    log_event(job_id, f"Victim received payload: {info}")
-    return jsonify({"ok": True})
-
 # ----------------- Socket.IO ----------------- #
-
 @socketio.on('connect')
 def handle_connect():
     print(f"[SocketIO] Client connected: {request.sid}")
