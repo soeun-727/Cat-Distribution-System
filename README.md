@@ -23,7 +23,6 @@
         ```html
         <script src="http://127.0.0.1:5000/static/js/socket.io.min.js"></script>
         <script>
-        // exploit.js (참가자가 작성)
         const socket = io("http://web:5000"); // Socket.IO 연결
         socket.on('connect', () => socket.emit("READY", {}));
         socket.on('search_history', (data) => {
