@@ -1,6 +1,6 @@
 #\app.py"
-
-from flask import Flask, request, render_template, make_response, redirect, url_for, escape
+from flask import Flask, request, render_template, make_response, redirect, url_for
+from markupsafe import escape
 from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, emit
 import os

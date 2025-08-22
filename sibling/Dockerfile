@@ -18,6 +18,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # 앱 소스 복사
 COPY sibling.py .
-COPY templates ./templates
+COPY login.html ./login.html
 
 CMD ["python", "sibling.py"]

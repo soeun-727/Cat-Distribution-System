@@ -13,7 +13,7 @@ services:
     build: ./sibling
     container_name: sibling_web
     ports:
-      - "5001:5000"
+      - "5001:5001"
 
   exploit:
     build: ./exploit      # exploit 서버 코드가 들어 있는 디렉토리
@@ -22,4 +22,6 @@ services:
       - "8000:8000"
     environment:
       - TARGET_ORIGIN=http://web:5000     # 공격자가 "관리자 브라우저"를 흉내낼 때 기준이 되는 도메인
-      - ADMIN_SESSIONID=secret_admin_sid  # 관리자 세션 쿠키 값
+
+depends_on:
+  - web
