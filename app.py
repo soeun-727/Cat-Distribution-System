@@ -181,6 +181,15 @@ def view_logs():
         return "Job ID required", 400
     return render_template("logs.html", jobId=job_id)
 
+@app.route("/logs/data")
+def logs_data():
+    job_id = request.args.get("jobId")
+    if not job_id:
+        return jsonify({"error": "job id required"}), 400
+    items = logs_by_job.get(job_id, [])
+    return jsonify({"items": items})
+
+
 @app.route("/victim-callback", methods=["POST"])
 def victim_callback():
     data = request.get_json()
