@@ -176,10 +176,9 @@ def handle_disconnect():
 
 @app.route("/deliver", methods=["POST"])
 def deliver():
-    data = request.json
-    # payload 처리 로직 (여기선 단순 확인용)
-    print("Received payload:", data)
-    return jsonify({"status": "ok"}), 200
+    data = request.get_json()
+    print("Payload received:", data)
+    return jsonify({"ok": True})
 
 # ----------------- Main ----------------- #
 if __name__ == '__main__':
