@@ -174,6 +174,13 @@ def handle_search(data):
 def handle_disconnect():
     print(f"[SocketIO] Client disconnected: {request.sid}")
 
+@app.route("/deliver", methods=["POST"])
+def deliver():
+    data = request.json
+    # payload 처리 로직 (여기선 단순 확인용)
+    print("Received payload:", data)
+    return jsonify({"status": "ok"}), 200
+
 # ----------------- Main ----------------- #
 if __name__ == '__main__':
     with app.app_context():
