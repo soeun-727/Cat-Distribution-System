@@ -16,6 +16,7 @@ WORKDIR /app
 # 의존성 복사 및 설치
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install flask-cors
 
 # 앱 소스 복사
 COPY . .
