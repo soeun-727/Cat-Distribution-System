@@ -6,6 +6,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, emit
 import os
 from datetime import datetime
+from flask import Flask
+from flask_cors import CORS
 
 # ----------------- Flask / DB / SocketIO ----------------- #
 app = Flask(__name__)
@@ -14,6 +16,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(app.instance
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
+CORS(app, resources={r"/*": {"origins": "http://192.168.28.128:8000"}})
 
 
 # CSRF 함수 등록
