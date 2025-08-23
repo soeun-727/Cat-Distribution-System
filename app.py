@@ -178,7 +178,7 @@ def handle_disconnect():
 def deliver():
     data = request.get_json()
     print("Payload received:", data)
-    return jsonify({"ok": True})
+    return {"ok": True}
 
 # ----------------- Main ----------------- #
 if __name__ == '__main__':
