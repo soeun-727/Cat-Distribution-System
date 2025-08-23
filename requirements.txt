@@ -5,4 +5,7 @@ python-socketio
 python-engineio
 eventlet
 markupsafe
-flask-cors
+Flask-Cors
+
+
+
