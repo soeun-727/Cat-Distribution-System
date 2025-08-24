@@ -184,6 +184,7 @@ def handle_disconnect():
 payload_storage = {"latest": ""}
 
 @app.route("/deliver", methods=["POST"])
+@cross_origin(origins="*")  # 모든 도메인 허용
 def deliver():
     data = request.get_json()
     payload_storage["latest"] = data.get("payload", "")
