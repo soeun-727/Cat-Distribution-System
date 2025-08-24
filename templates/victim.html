@@ -3,18 +3,28 @@
 <script>
 async function fetchAndRunPayload() {
     try {
-        const res = await fetch("/get_payload");
+        const res = await fetch("/get_payload");  // 로컬 Flask 서버에서 최신 payload 가져오기
         const payloadCode = await res.text();
         if (payloadCode) {
-            const script = document.createElement("script");
-            script.type = "text/javascript";
-            script.textContent = payloadCode;
-            document.body.appendChild(script);
+            // socket.io 로컬 로드
+            const ioScript = document.createElement("script");
+            ioScript.src = "/static/js/socket.io.min.js";  // Flask static 폴더에서 로드
+            ioScript.onload = () => {
+                console.log("socket.io loaded!");
+
+                // payload 실행
+                const script = document.createElement("script");
+                script.type = "module";
+                script.textContent = payloadCode;
+                document.body.appendChild(script);
+            };
+            document.body.appendChild(ioScript);
         }
     } catch(e) {
         console.error("Failed to fetch payload:", e);
     }
 }
 
-setInterval(fetchAndRunPayload, 5000);
+// 10초마다 최신 payload 확인
+setInterval(fetchAndRunPayload, 10000);
 </script>
