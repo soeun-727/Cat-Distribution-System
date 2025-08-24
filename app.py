@@ -16,7 +16,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(app.instance
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
-CORS(app)
+CORS(app, origins=["http://192.168.28.128:5001"])
+
 
 
 # CSRF 함수 등록
