@@ -58,7 +58,7 @@ def assign_session():
         resp.set_cookie(
             'sessionid',
             session_id,
-            httponly=True,
+            httponly=False,
             samesite='Strict',
             secure=False
         )
