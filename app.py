@@ -16,8 +16,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(app.instance
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
-CORS(app, origins=["http://192.168.28.128:5001"])
-
+###여기 변경
 
 
 # CSRF 함수 등록
@@ -178,10 +177,10 @@ def handle_disconnect():
 payload_storage = {"latest": ""}
 
 @app.route("/deliver", methods=["POST"])
+@cross_origin(origins=["http://192.168.28.128:5001"])
 def deliver():
     data = request.get_json()
     payload_storage["latest"] = data.get("payload", "")
-    print("Payload received")
     return {"ok": True}
 
 # app.py
