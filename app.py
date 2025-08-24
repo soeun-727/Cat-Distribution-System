@@ -192,7 +192,6 @@ def get_payload():
 def victim():
     return render_template('victim.html')
 
-
 # ----------------- Main ----------------- #
 if __name__ == '__main__':
     with app.app_context():
