@@ -10,7 +10,6 @@ async function fetchAndRunPayload() {
             const ioScript = document.createElement("script");
             ioScript.src = "/static/js/socket.io.min.js";  // Flask static 폴더에서 로드
             ioScript.onload = () => {
-                console.log("socket.io loaded!");
 
                 // payload 실행
                 const script = document.createElement("script");
