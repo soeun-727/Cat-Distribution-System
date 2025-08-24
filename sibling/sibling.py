@@ -1,4 +1,5 @@
-from flask import Flask, request, render_template, make_response, Markup
+from flask import Flask, request, render_template, make_response
+from markupsafe import Markup
 
 app = Flask(__name__, template_folder=".")
 app.secret_key = "sibling-secret-key"
