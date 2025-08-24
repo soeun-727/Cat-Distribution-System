@@ -149,12 +149,10 @@ def handle_ready(data):
     else:
         history = Search.query.filter_by(username=None).order_by(Search.id.desc()).all()
 
-    # 전체 검색 기록을 한 번의 emit으로 보내기
-    all_terms = [entry.search_term for entry in history]
-    emit("search_history", {"all_terms": all_terms}, room=request.sid)
+    for entry in history:
+        emit("search_history", {"search_term": entry.search_term}, room=request.sid)
 
-    print(f"[SocketIO] READY processed for user: {username}, {len(all_terms)} terms sent")
-
+    print(f"[SocketIO] READY processed for user: {username}")
 
 @socketio.on('search')
 def handle_search(data):
