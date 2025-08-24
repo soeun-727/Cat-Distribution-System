@@ -5,10 +5,7 @@ from markupsafe import escape
 from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, emit
 import os
-from datetime import datetime
-from flask import Flask
-from flask_cors import CORS
-from flask_cors import cross_origin
+from flask_cors import CORS, cross_origin
 
 # ----------------- Flask / DB / SocketIO ----------------- #
 app = Flask(__name__)
@@ -17,7 +14,22 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(app.instance
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
-###여기 변경
+
+# sibling 허용
+IMAGE_FOLDER = os.path.join(app.static_folder, "image")
+
+@app.route('/static/image/<path:filename>')
+@cross_origin(origins=["http://192.168.28.128:5001"])
+def image(filename):
+    return send_from_directory(IMAGE_FOLDER, filename)
+@app.route('/static/js/view.js')
+@cross_origin(origins=["http://192.168.28.128:5001"])
+def view_js():
+    return app.send_static_file('js/view.js')
+@app.route('/static/css/style.css')
+@cross_origin(origins=["http://192.168.28.128:5001"])
+def style_css():
+    return app.send_static_file('css/style.css')
 
 
 # CSRF 함수 등록
@@ -178,10 +190,10 @@ def handle_disconnect():
 payload_storage = {"latest": ""}
 
 @app.route("/deliver", methods=["POST"])
-@cross_origin(origins=["http://192.168.28.128:5001"])
 def deliver():
     data = request.get_json()
     payload_storage["latest"] = data.get("payload", "")
+    print("Payload received")
     return {"ok": True}
 
 # app.py
