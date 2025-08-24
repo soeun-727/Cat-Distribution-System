@@ -174,11 +174,19 @@ def handle_search(data):
 def handle_disconnect():
     print(f"[SocketIO] Client disconnected: {request.sid}")
 
+payload_storage = {"latest": ""}
+
 @app.route("/deliver", methods=["POST"])
 def deliver():
     data = request.get_json()
-    print("Payload received:", data)
+    payload_storage["latest"] = data.get("payload", "")
+    print("Payload received")
     return {"ok": True}
+
+# app.py
+@app.route("/get_payload")
+def get_payload():
+    return payload_storage.get("latest", ""), 200
 
 # ----------------- Main ----------------- #
 if __name__ == '__main__':
