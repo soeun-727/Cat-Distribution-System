@@ -188,6 +188,11 @@ def deliver():
 def get_payload():
     return payload_storage.get("latest", ""), 200
 
+@app.route('/victim')
+def victim():
+    return render_template('victim.html')
+
+
 # ----------------- Main ----------------- #
 if __name__ == '__main__':
     with app.app_context():
