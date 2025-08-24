@@ -16,12 +16,6 @@ db = SQLAlchemy(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 # sibling 허용
-IMAGE_FOLDER = os.path.join(app.static_folder, "image")
-
-@app.route('/static/image/<path:filename>')
-@cross_origin(origins=["http://192.168.28.128:5001"])
-def image(filename):
-    return send_from_directory(IMAGE_FOLDER, filename)
 @app.route('/static/js/view.js')
 @cross_origin(origins=["http://192.168.28.128:5001"])
 def view_js():
