@@ -1,4 +1,4 @@
-#\app.py"
+#app.py"
 from flask import Flask, request, render_template, make_response, redirect, url_for, session
 import secrets
 from markupsafe import escape
@@ -13,20 +13,17 @@ app.secret_key = os.urandom(32)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(app.instance_path, 'cds.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
-socketio = SocketIO(app, cors_allowed_origins="*")
+socketio = SocketIO(app, cors_allowed_origins=["https://main.cds.com", "https://secret.cds.com"])
 
-# sibling 허용
 @app.route('/static/js/view.js')
-@cross_origin(origins=["http://192.168.28.128:5001"])
+@cross_origin(origins=["https://secret.cds.com"])
 def view_js():
     return app.send_static_file('js/view.js')
 @app.route('/static/css/style.css')
-@cross_origin(origins=["http://192.168.28.128:5001"])
+@cross_origin(origins=["https://secret.cds.com"])
 def style_css():
     return app.send_static_file('css/style.css')
 
-
-# CSRF 함수 등록
 def generate_csrf_token():
     if "_csrf_token" not in session:
         session["_csrf_token"] = secrets.token_hex(16)
@@ -36,39 +33,35 @@ app.jinja_env.globals["csrf_token"] = generate_csrf_token
 
 # ----------------- FLAG / Users ----------------- #
 try:
-    FLAG = open("./flag.txt", "r").read()
+    KEY = open("./key.txt", "r").read()
 except:
-    FLAG = "[**FLAG**]"
+    KEY = "[**FLAG**]"
 
 users = {
-    'guest': 'guest',
-    'admin': FLAG
+    'kitty': 'kitty',
+    'admin': KEY
 }
 
 # ----------------- Session / Storage ----------------- #
 session_storage = {}
 
-# ----------------- Models ----------------- #
+# ----------------- DB ----------------- #
 class Search(db.Model):
     __tablename__ = 'Search'
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(64), nullable=True)
+    session_id = db.Column(db.String(32), nullable=False)
     search_term = db.Column(db.String(100), nullable=False)
 
-# ----------------- Routes ----------------- #
+# ----------------- Session 처리 ----------------- #
 @app.before_request
 def assign_session():
-    if 'sessionid' not in request.cookies:
+    """모든 요청에서 sessionid 확인, 없으면 생성"""
+    session_id = request.cookies.get('sessionid')
+    if not session_id:
         session_id = os.urandom(8).hex()
-        session_storage[session_id] = None
-        resp = make_response()
-        resp.set_cookie(
-            'sessionid',
-            session_id,
-            httponly=True,
-            samesite='Strict',
-            secure=False
-        )
+    if session_id not in session_storage:
+        session_storage[session_id] = None 
+    request.session_id = session_id 
 
 @app.route('/')
 def home():
@@ -96,7 +89,8 @@ def login():
         session_id,
         httponly=True,
         samesite='Strict',
-        secure=False
+        secure=False,
+        domain='.cds.com'
     )
     return resp
 
@@ -113,16 +107,15 @@ cats = [
 def search():
     query = request.args.get('q', '').strip()
     session_id = request.cookies.get('sessionid')
-    username = session_storage.get(session_id) if session_id else None
 
     if query:
-        db.session.add(Search(username=username, search_term=query))
+        db.session.add(Search(session_id=session_id, search_term=query))
         db.session.commit()
 
     query_lower = query.lower()
     filtered_cats = [cat for cat in cats if query_lower in cat["name"].lower()] if query else cats
-    history = Search.query.filter_by(username=username).order_by(Search.id.desc()).all()
 
+    history = Search.query.filter_by(session_id=session_id).order_by(Search.id.desc()).all()
 
     return render_template(
         'search.html',
@@ -150,32 +143,26 @@ def handle_connect():
 @socketio.on('READY')
 def handle_ready(data):
     session_id = data.get("sessionid")
-    username = session_storage.get(session_id) if session_id else None
-
-    if username:
-        history = Search.query.filter_by(username=username).order_by(Search.id.desc()).all()
-    else:
-        history = Search.query.filter_by(username=None).order_by(Search.id.desc()).all()
+    history = Search.query.filter_by(session_id=session_id).order_by(Search.id.desc()).all()
 
     for entry in history:
         emit("search_history", {"search_term": entry.search_term}, room=request.sid)
 
-    print(f"[SocketIO] READY processed for user: {username}")
+    print(f"[SocketIO] READY processed for session: {session_id}")
 
 @socketio.on('search')
 def handle_search(data):
     session_id = data.get("sessionid")
-    username = session_storage.get(session_id) if session_id else None
     search_term = data.get("q", "").strip()
 
     if not search_term:
         emit("error", {"error": "Empty search term"}, room=request.sid)
         return
 
-    db.session.add(Search(username=username, search_term=search_term))
+    db.session.add(Search(session_id=session_id, search_term=search_term))
     db.session.commit()
 
-    print(f"[SocketIO] {username} searched for {search_term}")
+    print(f"[SocketIO] Session {session_id} searched for {search_term}")
     emit("search_history", {"search_term": search_term}, room=request.sid)
 
 @socketio.on('disconnect')
@@ -205,4 +192,4 @@ def victim():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    socketio.run(app, host='0.0.0.0', port=5000, debug=True)
+    socketio.run(app, host='0.0.0.0', port=727, debug=True)

@@ -27,7 +27,7 @@ RUN mkdir -p /app/instance && chmod 777 /app/instance
 ENV FLASK_ENV=production
 
 # 포트 오픈
-EXPOSE 5000
+EXPOSE 727
 
 # 서버 실행
 CMD ["python", "app.py"]

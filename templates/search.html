@@ -3,42 +3,39 @@
 <head>
   <meta charset="utf-8" />
   <title>Search Results</title>
-
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
 </head>
 
 <body>
   <div class="container">
 
-  <nav>
-    <div class="main-nav">
-    <a href="{{ url_for('home') }}">Home</a> |
-    <a href="{{ url_for('login') }}">Login</a>
-    </div>
-    <div class="exploit-nav">
-    <a id="exploitLink" target="_blank">Exploit Server</a>
-    </div>
-  </nav>
-<script>
-  const exploitLink = document.getElementById("exploitLink");
-  const protocol = window.location.protocol;
-  const host = window.location.hostname;
-  const url = `${protocol}//${host}:8000/exploit`; // 8000 포트 익스플로잇 서버
+    <nav>
+      <div class="main-nav">
+        <a href="{{ url_for('home') }}">Home</a> |
+        <a href="{{ url_for('login') }}">Login</a>
+      </div>
+      <div class="exploit-nav">
+        <a id="exploitLink" target="_blank">Exploit Server</a>
+      </div>
+    </nav>
 
-  // 링크 클릭 시 새 탭 열기
-  exploitLink.addEventListener("click", (e) => {
-    e.preventDefault(); // 기본 링크 이동 방지
-    window.open(url, "_blank");
-  });
-
-  // 링크에 href도 설정
-  exploitLink.href = url;
-</script>
+    <script>
+      const exploitLink = document.getElementById("exploitLink");
+      const protocol = window.location.protocol;
+      const host = window.location.hostname;
+      const url = "https://exploit.server.com:888/exploit"; 
+      exploitLink.addEventListener("click", (e) => { e.preventDefault(); window.open(url, "_blank"); });
+      exploitLink.href = url;
+    </script>
 
     <h1><a href="{{ url_for('home') }}">Cat Distribution System</a></h1>
 
     <h3>Search History</h3>
-    <ul id="historyList"></ul>
+    <ul id="historyList">
+      {% for entry in history %}
+        <li>{{ entry.search_term }}</li>
+      {% endfor %}
+    </ul>
 
     <br>
     <form id="searchForm" action="{{ url_for('search') }}" method="GET">
@@ -69,38 +66,25 @@
 
   <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
   <script>
-    const socket = io();
-
-    // 현재 세션 ID
+    const socket = io("https://main.cds.com:727");
     const sessionId = document.cookie.split('; ').find(row => row.startsWith('sessionid='))?.split('=')[1];
 
-    // 페이지 로드 시 서버에 준비 신호 보내기
     socket.emit('READY', { sessionid: sessionId });
-
-    // 실시간 검색 기록 추가
     socket.on('search_history', (data) => {
       const li = document.createElement('li');
       li.textContent = data.search_term;
       document.getElementById('historyList').prepend(li);
     });
+    socket.on('system', (data) => { console.log(data.msg); });
 
-    socket.on('system', (data) => {
-      console.log(data.msg);
-    });
 
-    // 검색 폼 제출 시
     const searchForm = document.getElementById('searchForm');
     const searchInput = document.getElementById('searchInput');
 
     searchForm.addEventListener('submit', (e) => {
       const term = searchInput.value.trim();
       if (!term) return;
-
-      // 실시간 기록만 웹소켓으로 전송
       socket.emit('search', { sessionid: sessionId, q: term });
-
-      // 기본 GET 요청으로 페이지 제출 → 서버에서 검색 결과 렌더링
-      // e.preventDefault() 제거
     });
   </script>
 

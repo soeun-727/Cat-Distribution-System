@@ -10,14 +10,13 @@ RUN apt-get update && apt-get install -y \
     libffi-dev \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /sibling
-
+WORKDIR /secret
 # 의존성 복사 및 설치
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # 앱 소스 복사
-COPY sibling.py .
+COPY app.py .
 COPY login.html ./login.html
 
-CMD ["python", "sibling.py"]
+CMD ["python", "app.py"]
