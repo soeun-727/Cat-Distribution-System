@@ -121,7 +121,8 @@ def search():
 
     query_lower = query.lower()
     filtered_cats = [cat for cat in cats if query_lower in cat["name"].lower()] if query else cats
-    history = Search.query.order_by(Search.id.desc()).all()
+    history = Search.query.filter_by(username=username).order_by(Search.id.desc()).all()
+
 
     return render_template(
         'search.html',
