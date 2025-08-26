@@ -7,9 +7,9 @@ services:
     environment:
       - FLASK_ENV=development
 
-  sibling:
-    build: ./sibling
-    container_name: sibling_web
+  secret:
+    build: ./secret
+    container_name: secret_web
     ports:
       - "777:777"
 
@@ -19,4 +19,4 @@ services:
     ports:
       - "888:888"
     environment:
-      - TARGET_ORIGIN=http://web:727  
+      - TARGET_ORIGIN=http://localhost:727  

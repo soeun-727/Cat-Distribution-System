@@ -8,22 +8,19 @@
 
 <body>
   <div class="container">
-  <div class="container">
-
   <nav>
     <div class="main-nav">
     <a href="{{ url_for('home') }}">Home</a> |
     <a href="{{ url_for('login') }}">Login</a>
     </div>
     <div class="exploit-nav">
-    <a id="exploitLink" target="_blank">Exploit Server</a>
-    </div>
-  </nav>
+  <a id="exploitLink" target="_blank">Exploit Server</a>
+</div>
+</nav>
 <script>
   const exploitLink = document.getElementById("exploitLink");
-  const protocol = window.location.protocol;
-  const host = window.location.hostname;
-  const url = "https://exploit.server.com:888/exploit";
+  const url = "http://localhost:888/exploit";
+  exploitLink.href = url;
 
   exploitLink.addEventListener("click", (e) => {
     e.preventDefault(); 

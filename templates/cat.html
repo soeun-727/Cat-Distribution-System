@@ -8,16 +8,26 @@
 <body>
     <div class="container">
         <nav>
-            <div class="main-nav">
-                <a href="{{ url_for('home') }}">Home</a> |
-                <a href="{{ url_for('login') }}">Login</a>
-            </div>
-    <div class="exploit-nav">
-    <a id="exploitLink" href="https://exploit.server.com:888/exploit" target="_blank">Exploit Server</a>
+    <div class="main-nav">
+    <a href="{{ url_for('home') }}">Home</a> |
+    <a href="{{ url_for('login') }}">Login</a>
     </div>
-        </nav>
+    <div class="exploit-nav">
+  <a id="exploitLink" target="_blank">Exploit Server</a>
+</div>
+</nav>
+<script>
+  const exploitLink = document.getElementById("exploitLink");
+  const url = "http://localhost:888/exploit";
+  exploitLink.href = url;
 
-        <h1><a href="{{ url_for('home') }}">Cat Distribution System</a></h1>
+  exploitLink.addEventListener("click", (e) => {
+    e.preventDefault(); 
+    window.open(url, "_blank");
+  });
+
+  exploitLink.href = url;
+</script>
 
         <h2>Meet {{ cat.name }}!</h2>
         <img src="{{ url_for('static', filename='image/' + cat.image) }}" alt="{{ cat.name }}" style="width: 500px; height: auto;">

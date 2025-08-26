@@ -13,14 +13,18 @@ app.secret_key = os.urandom(32)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(app.instance_path, 'cds.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
-socketio = SocketIO(app, cors_allowed_origins=["https://main.cds.com", "https://secret.cds.com"])
+socketio = SocketIO(app, cors_allowed_origins=[
+    "http://localhost:727",
+    "http://localhost:777"
+])
 
 @app.route('/static/js/view.js')
-@cross_origin(origins=["https://secret.cds.com"])
+@cross_origin(origins=["http://localhost:777"])
 def view_js():
     return app.send_static_file('js/view.js')
+
 @app.route('/static/css/style.css')
-@cross_origin(origins=["https://secret.cds.com"])
+@cross_origin(origins=["http://localhost:777"])
 def style_css():
     return app.send_static_file('css/style.css')
 
@@ -90,7 +94,6 @@ def login():
         httponly=True,
         samesite='Strict',
         secure=False,
-        domain='.cds.com'
     )
     return resp
 
