@@ -6,6 +6,8 @@ services:
       - "727:727"
     environment:
       - FLASK_ENV=development
+    volumes:
+      - ./instance:/app/instance 
 
   secret:
     build: ./secret
@@ -19,4 +21,4 @@ services:
     ports:
       - "888:888"
     environment:
-      - TARGET_ORIGIN=http://localhost:727  
+      - TARGET_ORIGIN=http://localhost:727
