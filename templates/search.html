@@ -65,33 +65,8 @@
 
   </div>
 
-  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
-  <script>
-    const socket = io("http://localhost:727");
-    const sessionId = document.cookie.split('; ').find(row => row.startsWith('sessionid='))?.split('=')[1];
-
-    socket.emit('READY', { sessionid: sessionId });
-
-    socket.on('search_history', (data) => {
-      const li = document.createElement('li');
-      li.textContent = data.search_term;
-      document.getElementById('historyList').prepend(li);
-    });
-
-    socket.on('system', (data) => { console.log(data.msg); });
-
-    // 폼은 기본 제출(GET /search) → 서버에서 결과 반환
-    // 동시에 소켓에도 알림
-    const searchForm = document.getElementById('searchForm');
-    const searchInput = document.getElementById('searchInput');
-
-    searchForm.addEventListener('submit', () => {
-      const term = searchInput.value.trim();
-      if (term) {
-        socket.emit('search', { sessionid: sessionId, q: term });
-      }
-    });
-  </script>
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script src="{{ url_for('static', filename='js/search.js') }}"></script>
 
 </body>
 </html>

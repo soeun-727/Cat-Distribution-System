@@ -133,11 +133,10 @@ def handle_connect():
 
 @socketio.on('READY')
 def handle_ready(data):
-    session_id = data.get("sessionid")
+    session_id = data.get("sessionid")  
     history = Search.query.filter_by(session_id=session_id).order_by(Search.id.desc()).all()
     for entry in history:
         emit("search_history", {"search_term": entry.search_term}, room=request.sid)
-    print(f"[SocketIO] READY processed for session: {session_id}")
 
 @socketio.on('search')
 def handle_search(data):
