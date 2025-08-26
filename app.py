@@ -15,7 +15,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(app.instance
 app.config['SQLALCHEMY_DATABASE_URI'] += '?check_same_thread=False'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
-socketio = SocketIO(app)
+socketio = SocketIO(app, cors_allowed_origins=["http://localhost:888"])
+#위에 땜에 문제 생기면 롤백
 
 @app.route('/static/<path:filename>', methods=['GET', 'OPTIONS'])
 def serve_static(filename):
