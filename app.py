@@ -118,7 +118,6 @@ def search():
     # history는 Socket.IO에서만 처리
     return render_template('search.html', cats=filtered_cats, search_term=query)
 
-
 # ----------------- Socket.IO ----------------- #
 @socketio.on('connect')
 def handle_connect():

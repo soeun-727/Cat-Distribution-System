@@ -33,7 +33,6 @@
     if (data.search_term) addHistoryItem(data.search_term);
 });
 
-
     socket.on("system", data => console.log(data.msg));
     socket.on("error", data => console.error("Socket.IO error:", data.error));
 
