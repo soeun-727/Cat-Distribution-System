@@ -118,7 +118,7 @@ def handle_connect():
 
 @socketio.on('READY')
 def handle_ready(data):
-    session_id = data.get("sessionid") or request.cookies.get('sessionid') 
+    session_id = data.get("sessionid") or request.cookies.get("sessionid")
     history = Search.query.filter_by(session_id=session_id).order_by(Search.id.desc()).all()
     for entry in history:
         emit("search_history", {"search_term": entry.search_term}, room=request.sid)
@@ -126,7 +126,7 @@ def handle_ready(data):
 @app.route('/search')
 def search():
     query = request.args.get('q', '').strip()
-    session_id = request.session_id  
+    session_id = request.cookies.get("sessionid")
 
     if query:
         db.session.add(Search(session_id=session_id, search_term=query))
@@ -134,9 +134,7 @@ def search():
 
     query_lower = query.lower()
     filtered_cats = [cat for cat in cats if query_lower in cat["name"].lower()] if query else cats
-    history = Search.query.filter_by(session_id=session_id).order_by(Search.id.desc()).all()
-
-    return render_template('search.html', cats=filtered_cats, history=history, search_term=query)
+    return render_template('search.html', cats=filtered_cats, search_term=query)
 
 @socketio.on('disconnect')
 def handle_disconnect():

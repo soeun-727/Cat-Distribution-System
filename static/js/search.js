@@ -24,7 +24,7 @@
 
     socket.on("connect", () => {
         console.log("Socket.IO connected");
-        socket.emit("READY", { sessionid: sessionid });
+        socket.emit("READY", { sessionid: sessionid }); 
     });
 
     socket.on("search_history", data => {
@@ -34,7 +34,6 @@
     socket.on("system", data => console.log(data.msg));
     socket.on("error", data => console.error("Socket.IO error:", data.error));
 
-    // **submit 이벤트는 한 번만 등록**
     if (searchForm && searchInput) {
         searchForm.addEventListener("submit", e => {
             e.preventDefault();
