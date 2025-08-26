@@ -6,6 +6,7 @@ from flask_socketio import SocketIO, emit
 import os
 from flask_cors import CORS
 from flask import send_from_directory, make_response
+from flask import jsonify
 
 # ----------------- Flask / DB / SocketIO ----------------- #
 app = Flask(__name__, static_url_path=None)
@@ -181,12 +182,23 @@ def handle_disconnect():
 
 # ----------------- Payload ----------------- #
 payload_storage = {"latest": ""}
-@app.route("/deliver", methods=["POST"])
+@app.route('/deliver', methods=['POST', 'OPTIONS'])
 def deliver():
-    data = request.get_json()
-    payload_storage["latest"] = data.get("payload", "")
-    print("Payload received")
-    return {"ok": True}
+    if request.method == "OPTIONS":
+        response = make_response()
+        response.headers["Access-Control-Allow-Origin"] = "http://localhost:888"
+        response.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
+        response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+        return response
+
+    payload = request.json.get("payload", "")
+    payload_storage["latest"] = payload
+
+    response = jsonify({"status": "ok"})
+    response.headers["Access-Control-Allow-Origin"] = "http://localhost:888"
+    return response
+
+
 
 @app.route("/get_payload")
 def get_payload():
