@@ -4,7 +4,6 @@
     const searchForm = document.getElementById("searchForm");
     const searchInput = document.getElementById("searchInput");
 
-    // 검색 기록 추가
     function addHistoryItem(term) {
         if (!historyList) return;
         const li = document.createElement("li");
@@ -12,16 +11,15 @@
         historyList.prepend(li);
     }
 
-    // 쿠키에서 sessionid 가져오기
     function getCookie(name) {
         const value = `; ${document.cookie}`;
         const parts = value.split(`; ${name}=`);
         if (parts.length === 2) return parts.pop().split(";").shift();
         return null;
     }
+
     const sessionid = getCookie("sessionid");
 
-    // Socket.IO 연결
     const socket = io(`${window.location.protocol}//${window.location.hostname}:727`);
 
     socket.on("connect", () => {
@@ -36,7 +34,7 @@
     socket.on("system", data => console.log(data.msg));
     socket.on("error", data => console.error("Socket.IO error:", data.error));
 
-    // 검색폼 제출 이벤트 (한 번만)
+    // **submit 이벤트는 한 번만 등록**
     if (searchForm && searchInput) {
         searchForm.addEventListener("submit", e => {
             e.preventDefault();

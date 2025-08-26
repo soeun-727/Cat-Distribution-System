@@ -102,21 +102,6 @@ cats = [
     {"name": "Whiskers", "age": "7 months old", "image": "whiskers.jpg"},
 ]
 
-@app.route('/search')
-def search():
-    query = request.args.get('q', '').strip()
-    session_id = request.cookies.get('sessionid')
-
-    if query:
-        db.session.add(Search(session_id=session_id, search_term=query))
-        db.session.commit()
-
-    query_lower = query.lower()
-    filtered_cats = [cat for cat in cats if query_lower in cat["name"].lower()] if query else cats
-    history = Search.query.filter_by(session_id=session_id).order_by(Search.id.desc()).all()
-
-    return render_template('search.html', cats=filtered_cats, history=history, search_term=query)
-
 @app.route('/cat/<cat_name>')
 def cat_profile(cat_name):
     safe_name = escape(cat_name)
@@ -133,22 +118,25 @@ def handle_connect():
 
 @socketio.on('READY')
 def handle_ready(data):
-    session_id = data.get("sessionid")  
+    session_id = data.get("sessionid") or request.cookies.get('sessionid') 
     history = Search.query.filter_by(session_id=session_id).order_by(Search.id.desc()).all()
     for entry in history:
         emit("search_history", {"search_term": entry.search_term}, room=request.sid)
 
-@socketio.on('search')
-def handle_search(data):
-    session_id = data.get("sessionid")
-    search_term = data.get("q", "").strip()
-    if not search_term:
-        emit("error", {"error": "Empty search term"}, room=request.sid)
-        return
-    db.session.add(Search(session_id=session_id, search_term=search_term))
-    db.session.commit()
-    emit("search_history", {"search_term": search_term}, room=request.sid)
-    print(f"[SocketIO] Session {session_id} searched for {search_term}")
+@app.route('/search')
+def search():
+    query = request.args.get('q', '').strip()
+    session_id = request.session_id  
+
+    if query:
+        db.session.add(Search(session_id=session_id, search_term=query))
+        db.session.commit()
+
+    query_lower = query.lower()
+    filtered_cats = [cat for cat in cats if query_lower in cat["name"].lower()] if query else cats
+    history = Search.query.filter_by(session_id=session_id).order_by(Search.id.desc()).all()
+
+    return render_template('search.html', cats=filtered_cats, history=history, search_term=query)
 
 @socketio.on('disconnect')
 def handle_disconnect():
