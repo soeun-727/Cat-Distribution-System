@@ -27,8 +27,6 @@
     e.preventDefault(); 
     window.open(url, "_blank");
   });
-
-  exploitLink.href = url;
 </script>
 
     <h1><a href="{{ url_for('home') }}">Cat Distribution System</a></h1>
@@ -69,15 +67,17 @@
 
   <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
   <script>
-    const socket = io("https://main.cds.com:727");
+    const socket = io("https://localhost:727");
     const sessionId = document.cookie.split('; ').find(row => row.startsWith('sessionid='))?.split('=')[1];
 
     socket.emit('READY', { sessionid: sessionId });
+
     socket.on('search_history', (data) => {
       const li = document.createElement('li');
       li.textContent = data.search_term;
       document.getElementById('historyList').prepend(li);
     });
+
     socket.on('system', (data) => { console.log(data.msg); });
 
 
@@ -85,10 +85,13 @@
     const searchInput = document.getElementById('searchInput');
 
     searchForm.addEventListener('submit', (e) => {
+      e.preventDefault();
       const term = searchInput.value.trim();
       if (!term) return;
       socket.emit('search', { sessionid: sessionId, q: term });
+      searchInput.value = "";
     });
+
   </script>
 
 </body>

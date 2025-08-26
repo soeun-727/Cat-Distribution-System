@@ -1,18 +1,15 @@
-// /static/js/search.js
-
+//static/js/search.js
 (function () {
     const historyList = document.getElementById("historyList");
     const searchForm = document.getElementById("searchForm");
     const searchInput = document.getElementById("searchInput");
 
-    // 새로운 검색 기록 추가
     function addHistoryItem(term) {
         const li = document.createElement("li");
         li.textContent = term;
         historyList.prepend(li);
     }
 
-    // 쿠키에서 sessionid 가져오기
     function getCookie(name) {
         const value = `; ${document.cookie}`;
         const parts = value.split(`; ${name}=`);
@@ -20,62 +17,27 @@
         return null;
     }
 
-    let webSocket = null;
+    // Socket.IO 연결
+    const socket = io(`${window.location.protocol}//${window.location.hostname}:727`);
 
-    function openWebSocket() {
-        return new Promise(res => {
-            if (webSocket) {
-                res(webSocket);
-                return;
-            }
+    socket.on("connect", () => {
+        console.log("Socket.IO connected");
+        socket.emit("READY", { sessionid: getCookie("sessionid") });
+    });
 
-            // 웹소켓 연결 (Socket.IO 대신 일반 WebSocket 사용 가능)
-            webSocket = new WebSocket(searchForm.getAttribute("action").replace(/^http/, "ws"));
+    socket.on("search_history", data => {
+        if (data.search_term) addHistoryItem(data.search_term);
+    });
 
-            webSocket.onopen = function () {
-                console.log("WebSocket connected");
-                webSocket.send(JSON.stringify({ type: "READY", sessionid: getCookie("sessionid") }));
-                res(webSocket);
-            };
+    socket.on("system", data => console.log(data.msg));
+    socket.on("error", data => console.error("Socket.IO error:", data.error));
 
-            webSocket.onmessage = function (evt) {
-                const msg = evt.data;
-
-                try {
-                    const data = JSON.parse(msg);
-
-                    if (data.search_term) {
-                        addHistoryItem(data.search_term);
-                    } else if (data.error) {
-                        console.error("Error:", data.error);
-                    }
-                } catch (e) {
-                    console.error("Invalid message:", msg);
-                }
-            };
-
-            webSocket.onclose = function () {
-                console.warn("WebSocket disconnected");
-                webSocket = null;
-            };
-        });
-    }
-
-    function sendSearch(term) {
-        if (!webSocket) return;
-        const payload = { type: "search", sessionid: getCookie("sessionid"), q: term };
-        webSocket.send(JSON.stringify(payload));
-    }
-
-    searchForm.addEventListener("submit", function (e) {
+    searchForm.addEventListener("submit", e => {
         e.preventDefault();
         const term = searchInput.value.trim();
         if (!term) return;
 
-        openWebSocket().then(() => sendSearch(term));
-        searchInput.value = ""; // 입력창 초기화
+        socket.emit("search", { sessionid: getCookie("sessionid"), q: term });
+        searchInput.value = "";
     });
-
-    // 페이지 로드 시 웹소켓 연결
-    openWebSocket();
 })();

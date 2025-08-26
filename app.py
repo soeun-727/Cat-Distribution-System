@@ -1,11 +1,10 @@
-#app.py"
 from flask import Flask, request, render_template, make_response, redirect, url_for, session
 import secrets
 from markupsafe import escape
 from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, emit
 import os
-from flask_cors import CORS, cross_origin
+from flask_cors import CORS
 
 # ----------------- Flask / DB / SocketIO ----------------- #
 app = Flask(__name__)
@@ -13,21 +12,10 @@ app.secret_key = os.urandom(32)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(app.instance_path, 'cds.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
-socketio = SocketIO(app, cors_allowed_origins=[
-    "http://localhost:727",
-    "http://localhost:777"
-])
+socketio = SocketIO(app, cors_allowed_origins="*")
+CORS(app)
 
-@app.route('/static/js/view.js')
-@cross_origin(origins=["http://localhost:777"])
-def view_js():
-    return app.send_static_file('js/view.js')
-
-@app.route('/static/css/style.css')
-@cross_origin(origins=["http://localhost:777"])
-def style_css():
-    return app.send_static_file('css/style.css')
-
+# ----------------- CSRF ----------------- #
 def generate_csrf_token():
     if "_csrf_token" not in session:
         session["_csrf_token"] = secrets.token_hex(16)
@@ -35,7 +23,7 @@ def generate_csrf_token():
 
 app.jinja_env.globals["csrf_token"] = generate_csrf_token
 
-# ----------------- FLAG / Users ----------------- #
+# ----------------- Users / FLAG ----------------- #
 try:
     KEY = open("./key.txt", "r").read()
 except:
@@ -46,7 +34,7 @@ users = {
     'admin': KEY
 }
 
-# ----------------- Session / Storage ----------------- #
+# ----------------- Session ----------------- #
 session_storage = {}
 
 # ----------------- DB ----------------- #
@@ -58,15 +46,23 @@ class Search(db.Model):
 
 # ----------------- Session 처리 ----------------- #
 @app.before_request
-def assign_session():
-    """모든 요청에서 sessionid 확인, 없으면 생성"""
+def ensure_session_cookie():
     session_id = request.cookies.get('sessionid')
     if not session_id:
         session_id = os.urandom(8).hex()
-    if session_id not in session_storage:
-        session_storage[session_id] = None 
-    request.session_id = session_id 
+        resp = make_response()
+        resp.set_cookie(
+            'sessionid',
+            session_id,
+            httponly=False,   # JS에서 읽기 위해 False
+            samesite='Strict',
+            secure=False
+        )
+        request.cookies = request.cookies.copy()
+        request.cookies['sessionid'] = session_id
+    request.session_id = session_id
 
+# ----------------- Routes ----------------- #
 @app.route('/')
 def home():
     return render_template('home.html')
@@ -85,16 +81,9 @@ def login():
     if users[username] != password:
         return render_template('login.html', error="Wrong password", last_user=escape(username))
 
-    session_id = request.cookies.get('sessionid') or os.urandom(8).hex()
-    session_storage[session_id] = username
+    session_storage[request.session_id] = username
     resp = make_response(redirect(url_for('home')))
-    resp.set_cookie(
-        'sessionid',
-        session_id,
-        httponly=True,
-        samesite='Strict',
-        secure=False,
-    )
+    resp.set_cookie('sessionid', request.session_id, httponly=False, samesite='Strict', secure=False)
     return resp
 
 cats = [
@@ -117,25 +106,17 @@ def search():
 
     query_lower = query.lower()
     filtered_cats = [cat for cat in cats if query_lower in cat["name"].lower()] if query else cats
-
     history = Search.query.filter_by(session_id=session_id).order_by(Search.id.desc()).all()
 
-    return render_template(
-        'search.html',
-        cats=filtered_cats,
-        history=history,
-        search_term=query
-    )
+    return render_template('search.html', cats=filtered_cats, history=history, search_term=query)
 
 @app.route('/cat/<cat_name>')
 def cat_profile(cat_name):
     safe_name = escape(cat_name)
     cat_info = next((cat for cat in cats if cat['name'].lower() == safe_name.lower()), None)
-    
     if cat_info:
         return render_template('cat.html', cat=cat_info)
-    else:
-        return "Cat not found", 404
+    return "Cat not found", 404
 
 # ----------------- Socket.IO ----------------- #
 @socketio.on('connect')
@@ -147,42 +128,35 @@ def handle_connect():
 def handle_ready(data):
     session_id = data.get("sessionid")
     history = Search.query.filter_by(session_id=session_id).order_by(Search.id.desc()).all()
-
     for entry in history:
         emit("search_history", {"search_term": entry.search_term}, room=request.sid)
-
     print(f"[SocketIO] READY processed for session: {session_id}")
 
 @socketio.on('search')
 def handle_search(data):
     session_id = data.get("sessionid")
     search_term = data.get("q", "").strip()
-
     if not search_term:
         emit("error", {"error": "Empty search term"}, room=request.sid)
         return
-
     db.session.add(Search(session_id=session_id, search_term=search_term))
     db.session.commit()
-
-    print(f"[SocketIO] Session {session_id} searched for {search_term}")
     emit("search_history", {"search_term": search_term}, room=request.sid)
+    print(f"[SocketIO] Session {session_id} searched for {search_term}")
 
 @socketio.on('disconnect')
 def handle_disconnect():
     print(f"[SocketIO] Client disconnected: {request.sid}")
 
+# ----------------- Payload ----------------- #
 payload_storage = {"latest": ""}
-
 @app.route("/deliver", methods=["POST"])
-@cross_origin(origins="*")  # 모든 도메인 허용
 def deliver():
     data = request.get_json()
     payload_storage["latest"] = data.get("payload", "")
     print("Payload received")
     return {"ok": True}
 
-# app.py
 @app.route("/get_payload")
 def get_payload():
     return payload_storage.get("latest", ""), 200
