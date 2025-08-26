@@ -19,7 +19,6 @@
     }
 
     const sessionid = getCookie("sessionid");
-
     const socket = io(`${window.location.protocol}//${window.location.hostname}:727`);
 
     socket.on("connect", () => {
@@ -28,10 +27,10 @@
     });
 
     socket.on("search_history", data => {
-    if (!historyList) return;
-    if (data.reset) historyList.innerHTML = ""; // 새로고침 시 초기화
-    if (data.search_term) addHistoryItem(data.search_term);
-});
+        if (!historyList) return;
+        if (data.reset) historyList.innerHTML = "";
+        if (data.search_term) addHistoryItem(data.search_term);
+    });
 
     socket.on("system", data => console.log(data.msg));
     socket.on("error", data => console.error("Socket.IO error:", data.error));
@@ -41,8 +40,12 @@
             e.preventDefault();
             const term = searchInput.value.trim();
             if (!term) return;
-            socket.emit("search", { sessionid: sessionid, q: term });
-            searchInput.value = "";
+
+            socket.emit("search", { sessionid: sessionid, q: term }, (response) => {
+                window.location.href = `/search?q=${encodeURIComponent(term)}`;
+            });
         });
+
     }
+
 })();

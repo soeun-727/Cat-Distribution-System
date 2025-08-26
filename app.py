@@ -113,9 +113,15 @@ def cat_profile(cat_name):
 @app.route('/search')
 def search():
     query = request.args.get('q', '').strip()
+    session_id = request.cookies.get("sessionid")
+
+    if query:
+        # 홈에서 이동한 검색어도 저장
+        db.session.add(Search(session_id=session_id, search_term=query))
+        db.session.commit()
+
     query_lower = query.lower()
     filtered_cats = [cat for cat in cats if query_lower in cat["name"].lower()] if query else cats
-    # history는 Socket.IO에서만 처리
     return render_template('search.html', cats=filtered_cats, search_term=query)
 
 # ----------------- Socket.IO ----------------- #
@@ -139,12 +145,11 @@ def handle_search(data):
         emit("error", {"error": "Empty search term"}, room=request.sid)
         return
 
-    # DB 저장
     db.session.add(Search(session_id=session_id, search_term=search_term))
     db.session.commit()
-
-    # 클라이언트에 history emit
     emit("search_history", {"search_term": search_term}, room=request.sid)
+
+    return {"ok": True}  # 콜백 응답
 
 @socketio.on('disconnect')
 def handle_disconnect():

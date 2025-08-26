@@ -33,10 +33,13 @@
 
   <h1><a href="{{ url_for('home') }}">Cat Distribution System</a></h1>
 
-  <form action="{{ url_for('search') }}" method="GET">
-    <input type="text" name="q" lang="en" placeholder="Search for kitties!" required>
+  <form id="searchForm" action="{{ url_for('search') }}" method="GET">
+    <input id="searchInput" type="text" name="q" lang="en" placeholder="Search for kitties!" required>
     <input type="submit" value="Search">
   </form>
+
+<script src="{{ url_for('static', filename='js/search.js') }}"></script>
+
 
   <h2>Meet our kitties! ≽^•⩊•^≼</h2>
 
