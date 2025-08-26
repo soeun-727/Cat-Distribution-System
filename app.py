@@ -5,16 +5,31 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, emit
 import os
 from flask_cors import CORS
+from flask import send_from_directory, make_response
 
 # ----------------- Flask / DB / SocketIO ----------------- #
-app = Flask(__name__)
+app = Flask(__name__, static_url_path=None)
 app.secret_key = os.urandom(32)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(app.instance_path, 'cds.db')
 app.config['SQLALCHEMY_DATABASE_URI'] += '?check_same_thread=False'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
-socketio = SocketIO(app, cors_allowed_origins="*")
-CORS(app)
+socketio = SocketIO(app)
+
+@app.route('/static/<path:filename>', methods=['GET', 'OPTIONS'])
+def serve_static(filename):
+    if request.method == 'OPTIONS':
+        response = make_response()
+        if filename in ['style.css', 'view.js']:
+            response.headers['Access-Control-Allow-Origin'] = 'http://localhost:777'
+            response.headers['Access-Control-Allow-Methods'] = 'GET,OPTIONS'
+            response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+        return response
+
+    response = make_response(send_from_directory('static', filename))
+    if filename in ['style.css', 'view.js']:
+        response.headers['Access-Control-Allow-Origin'] = 'http://localhost:777'
+    return response
 
 # ----------------- CSRF ----------------- #
 def generate_csrf_token():
@@ -59,15 +74,23 @@ def ensure_session_cookie():
 
 @app.after_request
 def attach_cookie(response):
-    # before_request에서 새 session_id를 만든 경우만 쿠키 설정
+    # 새 session_id가 있으면 쿠키 설정
     if getattr(request, "new_session_id", None):
         response.set_cookie(
             'sessionid',
             request.new_session_id,
-            httponly=False,   # JS에서 읽기 위해 False
+            httponly=False,
             samesite='Strict',
             secure=False
         )
+
+    # style.css와 view.js에만 Access-Control-Allow-Origin 적용
+    path = request.path
+    if path.endswith('style.css') or path.endswith('view.js'):
+        response.headers['Access-Control-Allow-Origin'] = 'http://localhost:777'
+        response.headers['Access-Control-Allow-Methods'] = 'GET,OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+
     return response
 
 # ----------------- Routes ----------------- #

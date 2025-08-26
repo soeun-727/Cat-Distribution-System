@@ -38,9 +38,6 @@
     <input type="submit" value="Search">
   </form>
 
-<script src="{{ url_for('static', filename='js/search.js') }}"></script>
-
-
   <h2>Meet our kitties! ≽^•⩊•^≼</h2>
 
   <div>
@@ -111,6 +108,8 @@
   <button id="top_btn">↑</button>
 
 </div>
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script src="{{ url_for('static', filename='js/search.js') }}"></script>
 
 </body>
 </html>
