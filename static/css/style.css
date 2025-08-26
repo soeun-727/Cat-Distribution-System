@@ -139,15 +139,13 @@ input[type="submit"]:hover {
     background-color: lightpink; 
 }
 
-/* 네비게이션 바 전체를 가로 정렬합니다. */
 nav {
     display: flex;
-    justify-content: space-between; /* 양 끝 정렬 */
-    width: 100%; /* 너비를 100%로 설정하여 부모 요소에 맞춤 */
+    justify-content: space-between; 
+    width: 100%; 
     padding: 10px 0;
 }
 
-/* exploit-nav를 오른쪽으로 밀어냅니다. */
 .exploit-nav {
     margin-left: auto;
 }

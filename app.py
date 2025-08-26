@@ -170,11 +170,13 @@ def handle_search(data):
         emit("error", {"error": "Empty search term"}, room=request.sid)
         return
 
+    #익스플로잇 서버에서 확인용, 오류뜨면 지우자
+    print(f"[SEARCH] session_id={session_id}, term={search_term}")  
     db.session.add(Search(session_id=session_id, search_term=search_term))
     db.session.commit()
     emit("search_history", {"search_term": search_term}, room=request.sid)
 
-    return {"ok": True}  # 콜백 응답
+    return {"ok": True} 
 
 @socketio.on('disconnect')
 def handle_disconnect():
