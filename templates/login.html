@@ -20,15 +20,13 @@
 <script>
   const exploitLink = document.getElementById("exploitLink");
   const url = "http://localhost:888/exploit";
-  exploitLink.href = url;
 
   exploitLink.addEventListener("click", (e) => {
     e.preventDefault(); 
     window.open(url, "_blank");
   });
-
-  exploitLink.href = url;
 </script>
+
     <h1><a href="{{ url_for('home') }}">Cat Distribution System</a></h1>
 
     <h2>Login</h2>

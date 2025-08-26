@@ -50,6 +50,7 @@ def ensure_session_cookie():
     session_id = request.cookies.get('sessionid')
     if not session_id:
         session_id = os.urandom(8).hex()
+        # make_response를 활용해 브라우저에 쿠키 전달
         resp = make_response()
         resp.set_cookie(
             'sessionid',
@@ -58,8 +59,17 @@ def ensure_session_cookie():
             samesite='Strict',
             secure=False
         )
-        request.cookies = request.cookies.copy()
-        request.cookies['sessionid'] = session_id
+        # response를 attach할 수 있는 플로우
+        @app.after_request
+        def attach_cookie(response):
+            response.set_cookie(
+                'sessionid',
+                session_id,
+                httponly=False,
+                samesite='Strict',
+                secure=False
+            )
+            return response
     request.session_id = session_id
 
 # ----------------- Routes ----------------- #

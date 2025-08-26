@@ -19,15 +19,13 @@
 <script>
   const exploitLink = document.getElementById("exploitLink");
   const url = "http://localhost:888/exploit";
-  exploitLink.href = url;
 
   exploitLink.addEventListener("click", (e) => {
     e.preventDefault(); 
     window.open(url, "_blank");
   });
-
-  exploitLink.href = url;
 </script>
+
 
         <h2>Meet {{ cat.name }}!</h2>
         <img src="{{ url_for('static', filename='image/' + cat.image) }}" alt="{{ cat.name }}" style="width: 500px; height: auto;">
