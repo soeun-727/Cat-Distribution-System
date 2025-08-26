@@ -110,6 +110,15 @@ def cat_profile(cat_name):
         return render_template('cat.html', cat=cat_info)
     return "Cat not found", 404
 
+@app.route('/search')
+def search():
+    query = request.args.get('q', '').strip()
+    query_lower = query.lower()
+    filtered_cats = [cat for cat in cats if query_lower in cat["name"].lower()] if query else cats
+    # history는 Socket.IO에서만 처리
+    return render_template('search.html', cats=filtered_cats, search_term=query)
+
+
 # ----------------- Socket.IO ----------------- #
 @socketio.on('connect')
 def handle_connect():
@@ -123,18 +132,20 @@ def handle_ready(data):
     for entry in history:
         emit("search_history", {"search_term": entry.search_term}, room=request.sid)
 
-@app.route('/search')
-def search():
-    query = request.args.get('q', '').strip()
-    session_id = request.cookies.get("sessionid")
+@socketio.on('search')
+def handle_search(data):
+    session_id = data.get("sessionid") or request.cookies.get("sessionid")
+    search_term = data.get("q", "").strip()
+    if not search_term:
+        emit("error", {"error": "Empty search term"}, room=request.sid)
+        return
 
-    if query:
-        db.session.add(Search(session_id=session_id, search_term=query))
-        db.session.commit()
+    # DB 저장
+    db.session.add(Search(session_id=session_id, search_term=search_term))
+    db.session.commit()
 
-    query_lower = query.lower()
-    filtered_cats = [cat for cat in cats if query_lower in cat["name"].lower()] if query else cats
-    return render_template('search.html', cats=filtered_cats, search_term=query)
+    # 클라이언트에 history emit
+    emit("search_history", {"search_term": search_term}, room=request.sid)
 
 @socketio.on('disconnect')
 def handle_disconnect():

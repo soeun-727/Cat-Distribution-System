@@ -28,8 +28,11 @@
     });
 
     socket.on("search_history", data => {
-        if (data.search_term) addHistoryItem(data.search_term);
-    });
+    if (!historyList) return;
+    if (data.reset) historyList.innerHTML = ""; // 새로고침 시 초기화
+    if (data.search_term) addHistoryItem(data.search_term);
+});
+
 
     socket.on("system", data => console.log(data.msg));
     socket.on("error", data => console.error("Socket.IO error:", data.error));
