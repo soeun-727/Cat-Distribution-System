@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   nginx:
     image: nginx:latest
@@ -21,7 +19,7 @@ services:
     expose:
       - "727"
 
-  secret_web:
+  sub_web:
     build: ./secret
     container_name: sub_web
     expose:
