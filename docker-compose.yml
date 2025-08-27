@@ -12,21 +12,29 @@ services:
       - main_web
       - sub_web
       - exploit_web
+    networks:
+      - webnet
 
   main_web:
-    build: ./
+    build: ./ 
     container_name: main_web
     expose:
       - "727"
+    networks:
+      - webnet
 
   sub_web:
     build: ./secret
     container_name: sub_web
     expose:
       - "727"
+    networks:
+      - webnet
 
   exploit_web:
     build: ./exploit
     container_name: exploit_web
     expose:
       - "777"
+    networks:
+      - webnet
