@@ -38,3 +38,7 @@ services:
       - "777"
     networks:
       - webnet
+
+networks:
+  webnet:
+    driver: bridge
