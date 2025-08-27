@@ -12,7 +12,7 @@ services:
       - ./certs:/etc/nginx/certs:ro
     depends_on:
       - main_web
-      - secret_web
+      - sub_web
       - exploit_web
 
   main_web:
@@ -23,7 +23,7 @@ services:
 
   secret_web:
     build: ./secret
-    container_name: secret_web
+    container_name: sub_web
     expose:
       - "727"
 
