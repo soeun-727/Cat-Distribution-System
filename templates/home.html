@@ -4,9 +4,8 @@
   <meta charset="utf-8">
   <title>Home</title>
 
-  <!-- CSS / JS -->
-  <link rel="stylesheet" href="/main/static/CSS/style.css">
-  <script src="/main/static/JS/view.js"></script>
+  <link rel="stylesheet" href="/static/CSS/style.css">
+  <script src="/static/JS/view.js"></script>
 </head>
 
 <body>
@@ -14,26 +13,26 @@
 
     <nav>
       <div class="main-nav">
-        <a href="/main/">Home</a> |
-        <a href="/main/login">Login</a>
+        <a href="/">Home</a> |
+        <a href="/login">Login</a>
       </div>
       <div class="exploit-nav">
-        <a id="exploitLink" target="_blank">Exploit Server</a>
+        <a id="exploitLink" href="http://localhost:777/" target="_blank">Exploit Server</a>
       </div>
     </nav>
 
     <script>
       const exploitLink = document.getElementById("exploitLink");
-      const url = "http://localhost:777/exploit";
+      const url = exploitLink.href;
       exploitLink.addEventListener("click", (e) => {
         e.preventDefault(); 
         window.open(url, "_blank");
       });
     </script>
 
-    <h1><a href="/main/">Cat Distribution System</a></h1>
+    <h1><a href="/">Cat Distribution System</a></h1>
 
-    <form id="searchForm" action="/main/search" method="GET">
+    <form id="searchForm" action="/search" method="GET">
       <input id="searchInput" type="text" name="q" lang="en" placeholder="Search for kitties!" required>
       <input type="submit" value="Search">
     </form>
@@ -47,9 +46,9 @@
 
     <ul class="crop-container gallery-view" id="catList">
       <li>
-        <a href="/main/cat/cheese">
+        <a href="/cat/cheese">
           <div class="sct_img">
-            <img src="/main/static/Images/cheese.jpg" alt="Cheese" class="cropped-img">
+            <img src="/static/Images/cheese.jpg" alt="Cheese" class="cropped-img">
           </div>
           <div><strong>Cheese</strong></div>
         </a> 
@@ -57,9 +56,9 @@
       </li>
 
       <li>
-        <a href="/main/cat/john">
+        <a href="/cat/john">
           <div class="sct_img">
-            <img src="/main/static/Images/john.jpg" alt="John" class="cropped-img">
+            <img src="/static/Images/john.jpg" alt="John" class="cropped-img">
           </div>
           <div><strong>John</strong></div>
         </a>
@@ -67,9 +66,9 @@
       </li>
 
       <li>
-        <a href="/main/cat/kitty">
+        <a href="/cat/kitty">
           <div class="sct_img">
-            <img src="/main/static/Images/kitty.jpg" alt="Kitty" class="cropped-img">
+            <img src="/static/Images/kitty.jpg" alt="Kitty" class="cropped-img">
           </div>
           <div><strong>Kitty</strong></div>
         </a>
@@ -77,9 +76,9 @@
       </li>
 
       <li>
-        <a href="/main/cat/kurt">
+        <a href="/cat/kurt">
           <div class="sct_img">
-            <img src="/main/static/Images/kurt.png" alt="Kurt" class="cropped-img">
+            <img src="/static/Images/kurt.png" alt="Kurt" class="cropped-img">
           </div>
           <div><strong>Kurt</strong></div>
         </a>
@@ -87,9 +86,9 @@
       </li>
 
       <li>
-        <a href="/main/cat/tuna">
+        <a href="/cat/tuna">
           <div class="sct_img">
-            <img src="/main/static/Images/tuna.jpg" alt="Tuna" class="cropped-img">
+            <img src="/static/Images/tuna.jpg" alt="Tuna" class="cropped-img">
           </div>
           <div><strong>Tuna</strong></div>
         </a>
@@ -97,9 +96,9 @@
       </li>
 
       <li>
-        <a href="/main/cat/whiskers">
+        <a href="/cat/whiskers">
           <div class="sct_img">
-            <img src="/main/static/Images/whiskers.jpg" alt="Whiskers" class="cropped-img">
+            <img src="/static/Images/whiskers.jpg" alt="Whiskers" class="cropped-img">
           </div>
           <div><strong>Whiskers</strong></div>
         </a>
@@ -112,6 +111,6 @@
   </div>
 
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-  <script src="/main/static/JS/search.js"></script>
+  <script src="/static/JS/search.js"></script>
 </body>
 </html>

@@ -15,13 +15,13 @@
         <a href="{{ url_for('login') }}">Login</a>
       </div>
       <div class="exploit-nav">
-        <a id="exploitLink" target="_blank">Exploit Server</a>
+        <a id="exploitLink" href="http://localhost:777/" target="_blank">Exploit Server</a>
       </div>
     </nav>
     <script>
       const exploitLink = document.getElementById("exploitLink");
-      const url = "http://localhost:777/exploit";
-      exploitLink.href = url;
+      // HTML href 속성으로 이미 URL이 지정되어 있으므로, JavaScript는 단순하게 URL을 사용
+      const url = exploitLink.href;
       exploitLink.addEventListener("click", (e) => {
         e.preventDefault();
         window.open(url, "_blank");
@@ -38,7 +38,6 @@
     </ul>
 
     <br>
-    <!-- form은 정상적으로 서버로 GET 요청 -->
     <form id="searchForm" action="{{ url_for('search') }}" method="GET">
       <input type="text" id="searchInput" lang="en" name="q" placeholder="Search for kitties!" required value="{{ search_term }}">
       <input type="submit" value="Search" />
