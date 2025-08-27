@@ -13,15 +13,15 @@ services:
       - sub_web
       - exploit_web
     networks:
-      - webnet
+      - cds-net
 
   main_web:
-    build: ./ 
+    build: ./
     container_name: main_web
     expose:
       - "727"
     networks:
-      - webnet
+      - cds-net
 
   sub_web:
     build: ./secret
@@ -29,7 +29,7 @@ services:
     expose:
       - "727"
     networks:
-      - webnet
+      - cds-net
 
   exploit_web:
     build: ./exploit
@@ -37,8 +37,8 @@ services:
     expose:
       - "777"
     networks:
-      - webnet
+      - cds-net
 
 networks:
-  webnet:
+  cds-net:
     driver: bridge
