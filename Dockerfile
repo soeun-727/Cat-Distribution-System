@@ -14,17 +14,17 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 # 의존성 복사 및 설치
-COPY requirements.txt .
+COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install flask-cors
 
 # 앱 소스 복사
 COPY . .
-# instance 디렉토리 생성 및 권한 설정
-RUN mkdir -p /app/instance && chmod 777 /app/instance
+# key.txt를 컨테이너로 복사
+COPY key.txt ./
 
-# 환경변수 설정 (SECRET_KEY는 docker-compose.yml에서 설정)
-ENV FLASK_ENV=production
+# instance 디렉토리 생성 및 권한 설정
+RUN mkdir -p /app/instance && chmod 755 /app/instance
 
 # 포트 오픈
 EXPOSE 727

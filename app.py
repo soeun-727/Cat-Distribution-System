@@ -22,14 +22,14 @@ def serve_static(filename):
     if request.method == 'OPTIONS':
         response = make_response()
         if filename in ['style.css', 'view.js']:
-            response.headers['Access-Control-Allow-Origin'] = 'http://localhost:777'
+            response.headers['Access-Control-Allow-Origin'] = 'http://localhost:727/secret'
             response.headers['Access-Control-Allow-Methods'] = 'GET,OPTIONS'
             response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
         return response
 
     response = make_response(send_from_directory('static', filename))
     if filename in ['style.css', 'view.js']:
-        response.headers['Access-Control-Allow-Origin'] = 'http://localhost:777'
+        response.headers['Access-Control-Allow-Origin'] = 'http://localhost:727/secret'
     return response
 
 # ----------------- CSRF ----------------- #
@@ -88,7 +88,7 @@ def attach_cookie(response):
     # style.css와 view.js에만 Access-Control-Allow-Origin 적용
     path = request.path
     if path.endswith('style.css') or path.endswith('view.js'):
-        response.headers['Access-Control-Allow-Origin'] = 'http://localhost:777'
+        response.headers['Access-Control-Allow-Origin'] = 'http://localhost:727'
         response.headers['Access-Control-Allow-Methods'] = 'GET,OPTIONS'
         response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
 
@@ -188,7 +188,7 @@ payload_storage = {"latest": ""}
 def deliver():
     if request.method == "OPTIONS":
         response = make_response()
-        response.headers["Access-Control-Allow-Origin"] = "http://localhost:888"
+        response.headers["Access-Control-Allow-Origin"] = "http://localhost:777"
         response.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
         response.headers["Access-Control-Allow-Headers"] = "Content-Type"
         return response
@@ -197,10 +197,8 @@ def deliver():
     payload_storage["latest"] = payload
 
     response = jsonify({"status": "ok"})
-    response.headers["Access-Control-Allow-Origin"] = "http://localhost:888"
+    response.headers["Access-Control-Allow-Origin"] = "http://localhost:777"
     return response
-
-
 
 @app.route("/get_payload")
 def get_payload():

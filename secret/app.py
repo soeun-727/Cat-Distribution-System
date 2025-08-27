@@ -34,7 +34,7 @@ def login():
     # 현재 요청 호스트/포트 기준으로 exploit 서버 URL 동적 생성
     scheme = request.scheme
     host = request.host.split(':')[0]  # 호스트만
-    exploit_server_url = f"{scheme}://localhost:888/collect"
+    exploit_server_url = f"{scheme}://localhost:777/collect"
 
     # username을 HTML에서 스크립트 실행 가능하도록 safe 처리
     safe_username = Markup(username)
@@ -45,4 +45,4 @@ def login():
                            username=safe_username)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=777, debug=False)
+    app.run(host="0.0.0.0", port=727, debug=False)
