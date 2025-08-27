@@ -14,6 +14,7 @@ services:
       - exploit_web
     networks:
       - cds-net
+    restart: always
 
   main_web:
     build: ./
@@ -22,6 +23,8 @@ services:
       - "727"
     networks:
       - cds-net
+    restart: always
+    command: python app.py
 
   sub_web:
     build: ./secret
@@ -30,6 +33,8 @@ services:
       - "727"
     networks:
       - cds-net
+    restart: always
+    command: python app.py
 
   exploit_web:
     build: ./exploit
@@ -38,6 +43,8 @@ services:
       - "777"
     networks:
       - cds-net
+    restart: always
+    command: node exploit_server.js
 
 networks:
   cds-net:
