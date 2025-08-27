@@ -16,7 +16,7 @@ services:
       - exploit_web
 
   main_web:
-    build: ./main
+    build: ./
     container_name: main_web
     expose:
       - "727"
