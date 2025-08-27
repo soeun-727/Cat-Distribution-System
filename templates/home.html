@@ -4,112 +4,42 @@
   <meta charset="utf-8">
   <title>Home</title>
 
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-  <script src="{{ url_for('static', filename='js/view.js') }}"></script>
+  <!-- CSS / JS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/style.css') | replace('/static/', '/main/static/') }}">
+  <script src="{{ url_for('static', filename='JS/view.js') | replace('/static/', '/main/static/') }}"></script>
 </head>
 
 <body>
   <div class="container">
 
-  <nav>
-    <div class="main-nav">
-    <a href="{{ url_for('home') }}">Home</a> |
-    <a href="{{ url_for('login') }}">Login</a>
-    </div>
-    <div class="exploit-nav">
-  <a id="exploitLink" target="_blank">Exploit Server</a>
-</div>
-</nav>
-<script>
-  const exploitLink = document.getElementById("exploitLink");
-  const url = "http://localhost:777/exploit";
+    <nav>
+      <div class="main-nav">
+        <a href="{{ url_for('home') | replace('/', '/main/') }}">Home</a> |
+        <a href="{{ url_for('login') | replace('/', '/main/') }}">Login</a>
+      </div>
+      <div class="exploit-nav">
+        <a id="exploitLink" target="_blank">Exploit Server</a>
+      </div>
+    </nav>
 
-  exploitLink.addEventListener("click", (e) => {
-    e.preventDefault(); 
-    window.open(url, "_blank");
-  });
-</script>
+    <script>
+      const exploitLink = document.getElementById("exploitLink");
+      const url = "http://localhost:777/exploit";
+      exploitLink.addEventListener("click", (e) => {
+        e.preventDefault(); 
+        window.open(url, "_blank");
+      });
+    </script>
 
+    <h1><a href="{{ url_for('home') | replace('/', '/main/') }}">Cat Distribution System</a></h1>
 
-  <h1><a href="{{ url_for('home') }}">Cat Distribution System</a></h1>
+    <form id="searchForm" action="{{ url_for('search') | replace('/', '/main/') }}" method="GET">
+      <input id="searchInput" type="text" name="q" lang="en" placeholder="Search for kitties!" required>
+      <input type="submit" value="Search">
+    </form>
 
-  <form id="searchForm" action="{{ url_for('search') }}" method="GET">
-    <input id="searchInput" type="text" name="q" lang="en" placeholder="Search for kitties!" required>
-    <input type="submit" value="Search">
-  </form>
+    <h2>Meet our kitties! ≽^•⩊•^≼</h2>
 
-  <h2>Meet our kitties! ≽^•⩊•^≼</h2>
-
-  <div>
-    <button type="button" id="listBtn">List</button>
-    <button type="button" id="galleryBtn">Gallery</button>
-  </div>
-  <br>
-  <ul class="crop-container gallery-view" id="catList">
-    <li>
-      <a href="{{ url_for('cat_profile', cat_name='cheese') }}">
-        <div class="sct_img">
-        <img src="{{ url_for('static', filename='image/cheese.jpg') }}" alt="Cheese" class="cropped-img">
-        </div>
-        <div><strong>Cheese</strong></div>
-      </a> 
-      18 months old
-    </li>
-
-    <li>
-      <a href="{{ url_for('cat_profile', cat_name='john') }}">
-        <div class="sct_img">
-        <img src="{{ url_for('static', filename='image/john.jpg') }}" alt="John" class="cropped-img">
-        </div>
-        <div><strong>John</strong></div>
-      </a>
-      12 months old
-    </li>
-
-    <li>
-      <a href="{{ url_for('cat_profile', cat_name='kitty') }}">
-        <div class="sct_img">
-        <img src="{{ url_for('static', filename='image/kitty.jpg') }}" alt="Kitty" class="cropped-img">
-        </div>
-        <div><strong>Kitty</strong></div>
-      </a>
-      15 months old
-    </li>
-    <li>
-      <a href="{{ url_for('cat_profile', cat_name='kurt') }}">
-        <div class="sct_img">
-        <img src="{{ url_for('static', filename='image/kurt.png') }}" alt="Kitty" class="cropped-img">
-        </div>
-        <div><strong>Kurt</strong></div>
-      </a>
-      5 months old
-    </li>
-    <li>
-      <a href="{{ url_for('cat_profile', cat_name='tuna') }}">
-        <div class="sct_img">
-        <img src="{{ url_for('static', filename='image/tuna.jpg') }}" alt="Tuna" class="cropped-img">
-        </div>
-        <div><strong>Tuna</strong></div>
-      </a>
-      27 months old
-    </li>
-
-     <li>
-      <a href="{{ url_for('cat_profile', cat_name='whiskers') }}">
-        <div class="sct_img">
-        <img src="{{ url_for('static', filename='image/whiskers.jpg') }}" alt="Tuna" class="cropped-img">
-        </div>
-        <div><strong>Whiskers</strong></div>
-      </a>
-      7 months old
-    </li>   
-  </ul>
-
-  <button id="top_btn">↑</button>
-
-</div>
-<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-<script src="{{ url_for('static', filename='js/search.js') }}"></script>
-
-</body>
-</html>
+    <div>
+      <button type="button" id="listBtn">List</button>
+      <button type="button" i
