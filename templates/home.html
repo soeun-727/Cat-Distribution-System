@@ -5,8 +5,7 @@
   <title>Home</title>
 
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
-  <script src="{{ url_for('static', filename='JS/view.js') }}"></script>
-</head>
+  </head>
 
 <body>
   <div class="container">
@@ -48,7 +47,7 @@
       <li>
         <a href="{{ url_for('cat_profile', cat_name='cheese') }}">
           <div class="sct_img">
-            <img src="{{ url_for('static', filename='Images/cheese.jpg') }}" alt="Cheese" class="cropped-img">
+            <img src="{{ url_for('static', filename='image/cheese.jpg') }}" alt="Cheese" class="cropped-img">
           </div>
           <div><strong>Cheese</strong></div>
         </a> 
@@ -58,7 +57,7 @@
       <li>
         <a href="{{ url_for('cat_profile', cat_name='john') }}">
           <div class="sct_img">
-            <img src="{{ url_for('static', filename='Images/john.jpg') }}" alt="John" class="cropped-img">
+            <img src="{{ url_for('static', filename='image/john.jpg') }}" alt="John" class="cropped-img">
           </div>
           <div><strong>John</strong></div>
         </a>
@@ -68,7 +67,7 @@
       <li>
         <a href="{{ url_for('cat_profile', cat_name='kitty') }}">
           <div class="sct_img">
-            <img src="{{ url_for('static', filename='Images/kitty.jpg') }}" alt="Kitty" class="cropped-img">
+            <img src="{{ url_for('static', filename='image/kitty.jpg') }}" alt="Kitty" class="cropped-img">
           </div>
           <div><strong>Kitty</strong></div>
         </a>
@@ -78,7 +77,7 @@
       <li>
         <a href="{{ url_for('cat_profile', cat_name='kurt') }}">
           <div class="sct_img">
-            <img src="{{ url_for('static', filename='Images/kurt.png') }}" alt="Kurt" class="cropped-img">
+            <img src="{{ url_for('static', filename='image/kurt.png') }}" alt="Kurt" class="cropped-img">
           </div>
           <div><strong>Kurt</strong></div>
         </a>
@@ -88,7 +87,7 @@
       <li>
         <a href="{{ url_for('cat_profile', cat_name='tuna') }}">
           <div class="sct_img">
-            <img src="{{ url_for('static', filename='Images/tuna.jpg') }}" alt="Tuna" class="cropped-img">
+            <img src="{{ url_for('static', filename='image/tuna.jpg') }}" alt="Tuna" class="cropped-img">
           </div>
           <div><strong>Tuna</strong></div>
         </a>
@@ -98,7 +97,7 @@
       <li>
         <a href="{{ url_for('cat_profile', cat_name='whiskers') }}">
           <div class="sct_img">
-            <img src="{{ url_for('static', filename='Images/whiskers.jpg') }}" alt="Whiskers" class="cropped-img">
+            <img src="{{ url_for('static', filename='image/whiskers.jpg') }}" alt="Whiskers" class="cropped-img">
           </div>
           <div><strong>Whiskers</strong></div>
         </a>
@@ -111,6 +110,6 @@
   </div>
 
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-  <script src="{{ url_for('static', filename='JS/search.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/search.js') }}"></script>
 </body>
 </html>
