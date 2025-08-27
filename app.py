@@ -15,8 +15,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] += '?check_same_thread=False'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 socketio = SocketIO(app)
-
-#ACAO 추후 추가
+from flask import Flask, request, send_from_directory
 
 # ----------------- CSRF ----------------- #
 def generate_csrf_token():
@@ -72,12 +71,10 @@ def attach_cookie(response):
         )
 
     # style.css와 view.js에만 Access-Control-Allow-Origin 적용
-    path = request.path
-    if path.endswith('style.css') or path.endswith('view.js'):
-        response.headers['Access-Control-Allow-Origin'] = 'http://localhost:727/secret/'
-        response.headers['Access-Control-Allow-Methods'] = 'GET,OPTIONS'
+    if request.path.startswith("/api") or request.path.startswith("/deliver"):
+        response.headers['Access-Control-Allow-Origin'] = 'http://localhost:727/secret'
+        response.headers['Access-Control-Allow-Methods'] = 'GET,POST,OPTIONS'
         response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
-
     return response
 
 # ----------------- Routes ----------------- #
