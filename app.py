@@ -9,7 +9,7 @@ from flask import send_from_directory, make_response
 from flask import jsonify
 
 # ----------------- Flask / DB / SocketIO ----------------- #
-app = Flask(__name__, static_url_path='/main/static')
+app = Flask(__name__, static_url_path='/static')
 app.secret_key = os.urandom(32)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(app.instance_path, 'cds.db')
 app.config['SQLALCHEMY_DATABASE_URI'] += '?check_same_thread=False'
