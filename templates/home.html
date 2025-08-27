@@ -5,8 +5,8 @@
   <title>Home</title>
 
   <!-- CSS / JS -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/style.css') | replace('/static/', '/main/static/') }}">
-  <script src="{{ url_for('static', filename='JS/view.js') | replace('/static/', '/main/static/') }}"></script>
+  <link rel="stylesheet" href="/main/static/CSS/style.css">
+  <script src="/main/static/JS/view.js"></script>
 </head>
 
 <body>
@@ -14,8 +14,8 @@
 
     <nav>
       <div class="main-nav">
-        <a href="{{ url_for('home') | replace('/', '/main/') }}">Home</a> |
-        <a href="{{ url_for('login') | replace('/', '/main/') }}">Login</a>
+        <a href="/main/">Home</a> |
+        <a href="/main/login">Login</a>
       </div>
       <div class="exploit-nav">
         <a id="exploitLink" target="_blank">Exploit Server</a>
@@ -31,9 +31,9 @@
       });
     </script>
 
-    <h1><a href="{{ url_for('home') | replace('/', '/main/') }}">Cat Distribution System</a></h1>
+    <h1><a href="/main/">Cat Distribution System</a></h1>
 
-    <form id="searchForm" action="{{ url_for('search') | replace('/', '/main/') }}" method="GET">
+    <form id="searchForm" action="/main/search" method="GET">
       <input id="searchInput" type="text" name="q" lang="en" placeholder="Search for kitties!" required>
       <input type="submit" value="Search">
     </form>
@@ -42,4 +42,76 @@
 
     <div>
       <button type="button" id="listBtn">List</button>
-      <button type="button" i
+      <button type="button" id="galleryBtn">Gallery</button>
+    </div>
+
+    <ul class="crop-container gallery-view" id="catList">
+      <li>
+        <a href="/main/cat/cheese">
+          <div class="sct_img">
+            <img src="/main/static/Images/cheese.jpg" alt="Cheese" class="cropped-img">
+          </div>
+          <div><strong>Cheese</strong></div>
+        </a> 
+        18 months old
+      </li>
+
+      <li>
+        <a href="/main/cat/john">
+          <div class="sct_img">
+            <img src="/main/static/Images/john.jpg" alt="John" class="cropped-img">
+          </div>
+          <div><strong>John</strong></div>
+        </a>
+        12 months old
+      </li>
+
+      <li>
+        <a href="/main/cat/kitty">
+          <div class="sct_img">
+            <img src="/main/static/Images/kitty.jpg" alt="Kitty" class="cropped-img">
+          </div>
+          <div><strong>Kitty</strong></div>
+        </a>
+        15 months old
+      </li>
+
+      <li>
+        <a href="/main/cat/kurt">
+          <div class="sct_img">
+            <img src="/main/static/Images/kurt.png" alt="Kurt" class="cropped-img">
+          </div>
+          <div><strong>Kurt</strong></div>
+        </a>
+        5 months old
+      </li>
+
+      <li>
+        <a href="/main/cat/tuna">
+          <div class="sct_img">
+            <img src="/main/static/Images/tuna.jpg" alt="Tuna" class="cropped-img">
+          </div>
+          <div><strong>Tuna</strong></div>
+        </a>
+        27 months old
+      </li>
+
+      <li>
+        <a href="/main/cat/whiskers">
+          <div class="sct_img">
+            <img src="/main/static/Images/whiskers.jpg" alt="Whiskers" class="cropped-img">
+          </div>
+          <div><strong>Whiskers</strong></div>
+        </a>
+        7 months old
+      </li>
+    </ul>
+
+    <button id="top_btn">↑</button>
+
+  </div>
+
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="/main/static/JS/search.js"></script>
+</body>
+</html>

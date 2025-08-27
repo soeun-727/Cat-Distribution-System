@@ -9,7 +9,7 @@ from flask import send_from_directory, make_response
 from flask import jsonify
 
 # ----------------- Flask / DB / SocketIO ----------------- #
-app = Flask(__name__, static_url_path='/main/static')
+app = Flask(__name__, static_url_path='/main/')
 app.secret_key = os.urandom(32)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(app.instance_path, 'cds.db')
 app.config['SQLALCHEMY_DATABASE_URI'] += '?check_same_thread=False'
@@ -95,11 +95,11 @@ def attach_cookie(response):
     return response
 
 # ----------------- Routes ----------------- #
-@app.route('/main/')
+@app.route('/')
 def home():
     return render_template('home.html')
 
-@app.route('/main/login', methods=['GET', 'POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
         return render_template('login.html')
@@ -127,7 +127,7 @@ cats = [
     {"name": "Whiskers", "age": "7 months old", "image": "whiskers.jpg"},
 ]
 
-@app.route('/main/cat/<cat_name>')
+@app.route('/cat/<cat_name>')
 def cat_profile(cat_name):
     safe_name = escape(cat_name)
     cat_info = next((cat for cat in cats if cat['name'].lower() == safe_name.lower()), None)
@@ -135,7 +135,7 @@ def cat_profile(cat_name):
         return render_template('cat.html', cat=cat_info)
     return "Cat not found", 404
 
-@app.route('/main/search')
+@app.route('/search')
 def search():
     query = request.args.get('q', '').strip()
     session_id = request.cookies.get("sessionid")
