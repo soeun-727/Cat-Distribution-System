@@ -95,11 +95,11 @@ def attach_cookie(response):
     return response
 
 # ----------------- Routes ----------------- #
-@app.route('/')
+@app.route('/main/')
 def home():
     return render_template('home.html')
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/main/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
         return render_template('login.html')
@@ -127,7 +127,7 @@ cats = [
     {"name": "Whiskers", "age": "7 months old", "image": "whiskers.jpg"},
 ]
 
-@app.route('/cat/<cat_name>')
+@app.route('/main/cat/<cat_name>')
 def cat_profile(cat_name):
     safe_name = escape(cat_name)
     cat_info = next((cat for cat in cats if cat['name'].lower() == safe_name.lower()), None)
@@ -135,7 +135,7 @@ def cat_profile(cat_name):
         return render_template('cat.html', cat=cat_info)
     return "Cat not found", 404
 
-@app.route('/search')
+@app.route('/main/search')
 def search():
     query = request.args.get('q', '').strip()
     session_id = request.cookies.get("sessionid")

@@ -10,7 +10,7 @@ users = {
     "guest": "guest"
 }
 
-@app.route("/", methods=["GET", "POST"])
+@app.route("/secret/", methods=["GET", "POST"])
 def login():
     error = ""
     # POST일 때는 form에서, GET일 때는 query string에서 username 받음
