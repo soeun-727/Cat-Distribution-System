@@ -10,6 +10,7 @@ services:
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - ./certs:/etc/nginx/certs:ro
+      - ./static:/usr/share/nginx/html/static:ro 
     depends_on:
       - main_web
       - sub_web

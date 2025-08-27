@@ -9,7 +9,7 @@ from flask import send_from_directory, make_response
 from flask import jsonify
 
 # ----------------- Flask / DB / SocketIO ----------------- #
-app = Flask(__name__, static_url_path=None)
+app = Flask(__name__)
 app.secret_key = os.urandom(32)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(app.instance_path, 'cds.db')
 app.config['SQLALCHEMY_DATABASE_URI'] += '?check_same_thread=False'
@@ -17,20 +17,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 socketio = SocketIO(app)
 
-@app.route('/static/<path:filename>', methods=['GET', 'OPTIONS'])
-def serve_static(filename):
-    if request.method == 'OPTIONS':
-        response = make_response()
-        if filename in ['style.css', 'view.js']:
-            response.headers['Access-Control-Allow-Origin'] = 'http://localhost:727/secret'
-            response.headers['Access-Control-Allow-Methods'] = 'GET,OPTIONS'
-            response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
-        return response
-
-    response = make_response(send_from_directory('static', filename))
-    if filename in ['style.css', 'view.js']:
-        response.headers['Access-Control-Allow-Origin'] = 'http://localhost:727/secret'
-    return response
+#ACAO 추후 추가
 
 # ----------------- CSRF ----------------- #
 def generate_csrf_token():
