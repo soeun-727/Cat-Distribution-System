@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <title>Home</title>
 
-  <link rel="stylesheet" href="/static/CSS/style.css">
-  <script src="/static/JS/view.js"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/style.css') }}">
+  <script src="{{ url_for('static', filename='JS/view.js') }}"></script>
 </head>
 
 <body>
@@ -13,8 +13,8 @@
 
     <nav>
       <div class="main-nav">
-        <a href="/">Home</a> |
-        <a href="/login">Login</a>
+        <a href="{{ url_for('home') }}">Home</a> |
+        <a href="{{ url_for('login') }}">Login</a>
       </div>
       <div class="exploit-nav">
         <a id="exploitLink" href="http://localhost:777/" target="_blank">Exploit Server</a>
@@ -30,9 +30,9 @@
       });
     </script>
 
-    <h1><a href="/">Cat Distribution System</a></h1>
+    <h1><a href="{{ url_for('home') }}">Cat Distribution System</a></h1>
 
-    <form id="searchForm" action="/search" method="GET">
+    <form id="searchForm" action="{{ url_for('search') }}" method="GET">
       <input id="searchInput" type="text" name="q" lang="en" placeholder="Search for kitties!" required>
       <input type="submit" value="Search">
     </form>
@@ -46,9 +46,9 @@
 
     <ul class="crop-container gallery-view" id="catList">
       <li>
-        <a href="/cat/cheese">
+        <a href="{{ url_for('cat_profile', cat_name='cheese') }}">
           <div class="sct_img">
-            <img src="/static/Images/cheese.jpg" alt="Cheese" class="cropped-img">
+            <img src="{{ url_for('static', filename='Images/cheese.jpg') }}" alt="Cheese" class="cropped-img">
           </div>
           <div><strong>Cheese</strong></div>
         </a> 
@@ -56,9 +56,9 @@
       </li>
 
       <li>
-        <a href="/cat/john">
+        <a href="{{ url_for('cat_profile', cat_name='john') }}">
           <div class="sct_img">
-            <img src="/static/Images/john.jpg" alt="John" class="cropped-img">
+            <img src="{{ url_for('static', filename='Images/john.jpg') }}" alt="John" class="cropped-img">
           </div>
           <div><strong>John</strong></div>
         </a>
@@ -66,9 +66,9 @@
       </li>
 
       <li>
-        <a href="/cat/kitty">
+        <a href="{{ url_for('cat_profile', cat_name='kitty') }}">
           <div class="sct_img">
-            <img src="/static/Images/kitty.jpg" alt="Kitty" class="cropped-img">
+            <img src="{{ url_for('static', filename='Images/kitty.jpg') }}" alt="Kitty" class="cropped-img">
           </div>
           <div><strong>Kitty</strong></div>
         </a>
@@ -76,9 +76,9 @@
       </li>
 
       <li>
-        <a href="/cat/kurt">
+        <a href="{{ url_for('cat_profile', cat_name='kurt') }}">
           <div class="sct_img">
-            <img src="/static/Images/kurt.png" alt="Kurt" class="cropped-img">
+            <img src="{{ url_for('static', filename='Images/kurt.png') }}" alt="Kurt" class="cropped-img">
           </div>
           <div><strong>Kurt</strong></div>
         </a>
@@ -86,9 +86,9 @@
       </li>
 
       <li>
-        <a href="/cat/tuna">
+        <a href="{{ url_for('cat_profile', cat_name='tuna') }}">
           <div class="sct_img">
-            <img src="/static/Images/tuna.jpg" alt="Tuna" class="cropped-img">
+            <img src="{{ url_for('static', filename='Images/tuna.jpg') }}" alt="Tuna" class="cropped-img">
           </div>
           <div><strong>Tuna</strong></div>
         </a>
@@ -96,9 +96,9 @@
       </li>
 
       <li>
-        <a href="/cat/whiskers">
+        <a href="{{ url_for('cat_profile', cat_name='whiskers') }}">
           <div class="sct_img">
-            <img src="/static/Images/whiskers.jpg" alt="Whiskers" class="cropped-img">
+            <img src="{{ url_for('static', filename='Images/whiskers.jpg') }}" alt="Whiskers" class="cropped-img">
           </div>
           <div><strong>Whiskers</strong></div>
         </a>
@@ -111,6 +111,6 @@
   </div>
 
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-  <script src="/static/JS/search.js"></script>
+  <script src="{{ url_for('static', filename='JS/search.js') }}"></script>
 </body>
 </html>

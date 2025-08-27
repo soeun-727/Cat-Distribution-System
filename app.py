@@ -4,7 +4,6 @@ from markupsafe import escape
 from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, emit
 import os
-from flask_cors import CORS
 from flask import send_from_directory, make_response
 from flask import jsonify
 
