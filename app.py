@@ -66,7 +66,7 @@ def attach_cookie(response):
             'sessionid',
             request.new_session_id,
             httponly=False,
-            samesite='Strict',
+            samesite='None',
             secure=False
         )
 
