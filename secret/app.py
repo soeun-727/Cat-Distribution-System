@@ -4,6 +4,14 @@ from markupsafe import Markup
 app = Flask(__name__, template_folder=".")
 app.secret_key = "sibling-secret-key"
 
+@app.after_request
+def add_cors_headers(response):
+    if request.path.startswith("/secret"):
+        response.headers['Access-Control-Allow-Origin'] = 'http://localhost:777'
+        response.headers['Access-Control-Allow-Methods'] = 'GET,POST,OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+    return response
+
 users = {
     "admin": "p4sSw0Rd",
     "guest": "guest"
