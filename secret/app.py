@@ -40,6 +40,7 @@ def login(path=None):
                 f"{username}-session-value",
                 httponly=True,
                 samesite="Strict",
+                path="/"
             )
             return resp
         else:
