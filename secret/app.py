@@ -1,4 +1,3 @@
-#secret/app.py
 from flask import Flask, request, render_template, make_response
 from markupsafe import Markup
 
@@ -10,11 +9,18 @@ users = {
     "guest": "guest"
 }
 
-@app.route("/", methods=["GET", "POST"])
-@app.route("/<path:path>", methods=["GET", "POST"])
+@app.route("/", methods=["GET", "POST", "OPTIONS"])
+@app.route("/<path:path>", methods=["GET", "POST", "OPTIONS"])
 def login(path=None):
+    if request.method == "OPTIONS":
+        # CORS preflight 요청은 바로 200 OK로
+        resp = make_response()
+        resp.headers['Access-Control-Allow-Origin'] = 'http://localhost:777'
+        resp.headers['Access-Control-Allow-Methods'] = 'GET,POST,OPTIONS'
+        resp.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+        return resp
+
     error = ""
-    # POST일 때는 form에서, GET일 때는 query string에서 username 받음
     username = request.form.get("username", "") if request.method == "POST" else request.args.get("username", "")
     password = request.form.get("password", "") if request.method == "POST" else ""
 
@@ -22,22 +28,17 @@ def login(path=None):
         if username in users and users[username] == password:
             resp = make_response(f"Welcome {username}!")
             resp.set_cookie(
-            "session",
-            f"{username}-session-value",
-            httponly=True,
-            samesite="Strict",
-        )
-
+                "session",
+                f"{username}-session-value",
+                httponly=True,
+                samesite="Strict",
+            )
             return resp
         else:
             error = f"Invalid login for user: {username}"
 
-    # 현재 요청 호스트/포트 기준으로 exploit 서버 URL 동적 생성
     scheme = request.scheme
-    host = request.host.split(':')[0]  # 호스트만
     exploit_server_url = f"{scheme}://localhost:777/collect"
-
-    # username을 HTML에서 스크립트 실행 가능하도록 safe 처리
     safe_username = Markup(username)
 
     return render_template("login.html",
@@ -48,11 +49,9 @@ def login(path=None):
 
 @app.after_request
 def add_cors_headers(response):
-    # /secret 경로에서만 CORS 허용
-    if request.path.startswith("/"):
-        response.headers['Access-Control-Allow-Origin'] = 'http://localhost:777'
-        response.headers['Access-Control-Allow-Methods'] = 'GET,POST,OPTIONS'
-        response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+    response.headers['Access-Control-Allow-Origin'] = 'http://localhost:777'
+    response.headers['Access-Control-Allow-Methods'] = 'GET,POST,OPTIONS'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
     return response
 
 
