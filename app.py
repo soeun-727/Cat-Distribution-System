@@ -71,7 +71,7 @@ def attach_cookie(response):
         )
 
     # style.css와 view.js에만 Access-Control-Allow-Origin 적용
-    if request.path.startswith("/api") or request.path.startswith("/deliver"):
+    if request.path.startswith("/api"):
         response.headers['Access-Control-Allow-Origin'] = 'http://localhost:727/secret'
         response.headers['Access-Control-Allow-Methods'] = 'GET,POST,OPTIONS'
         response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
