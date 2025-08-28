@@ -1,3 +1,5 @@
+#/app.py
+
 from flask import Flask, request, render_template, make_response, redirect, url_for, session
 import secrets
 from markupsafe import escape
@@ -66,7 +68,7 @@ def attach_cookie(response):
             'sessionid',
             request.new_session_id,
             httponly=False,
-            samesite='None',
+            samesite='Strict',
             secure=False
         )
 

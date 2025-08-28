@@ -1,3 +1,5 @@
+#secret/app.py
+
 from flask import Flask, request, render_template, make_response
 from markupsafe import Markup
 
@@ -39,7 +41,7 @@ def login(path=None):
                 "session",
                 f"{username}-session-value",
                 httponly=True,
-                samesite="Strict",
+                samesite="None",
                 path="/"
             )
             return resp
