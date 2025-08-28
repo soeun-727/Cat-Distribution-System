@@ -44,6 +44,10 @@ def login():
                            exploit_server_url=exploit_server_url,
                            username=safe_username)
 
+@app.route("/secret/", methods=["GET", "POST"])
+def login_slash():
+    return login()
+
 @app.after_request
 def add_cors_headers(response):
     # /secret 경로에서만 CORS 허용
