@@ -140,6 +140,7 @@ def handle_connect():
 
 @socketio.on('READY')
 def handle_ready(data):
+    print("Handshake Cookies:", request.cookies)
     # 브라우저 쿠키에서 sessionid 자동 확인
     session_id = request.cookies.get("sessionid")
 
