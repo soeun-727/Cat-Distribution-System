@@ -11,7 +11,8 @@ users = {
 }
 
 @app.route("/", methods=["GET", "POST"])
-def login():
+@app.route("/<path:path>", methods=["GET", "POST"])
+def login(path=None):
     error = ""
     # POST일 때는 form에서, GET일 때는 query string에서 username 받음
     username = request.form.get("username", "") if request.method == "POST" else request.args.get("username", "")
