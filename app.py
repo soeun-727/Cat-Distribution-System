@@ -140,10 +140,17 @@ def handle_connect():
 
 @socketio.on('READY')
 def handle_ready(data):
-    session_id = data.get("sessionid") or request.cookies.get("sessionid")
-    history = Search.query.filter_by(session_id=session_id).order_by(Search.id.desc()).all()
-    for entry in history:
-        emit("search_history", {"search_term": entry.search_term}, room=request.sid)
+    # 브라우저 쿠키에서 sessionid 자동 확인
+    session_id = request.cookies.get("sessionid")
+
+    if session_id:
+        # /secret 요청처럼 쿠키가 존재하면 전체 기록 반환
+        history = Search.query.filter_by(session_id=session_id).order_by(Search.id.desc()).all()
+        for entry in history:
+            emit("search_history", {"search_term": entry.search_term}, room=request.sid)
+    else:
+        # 쿠키 없는 요청(exploit 서버 등) → 새 세션만 반환
+        emit("search_history", {"search_term": None}, room=request.sid)
 
 @socketio.on('search')
 def handle_search(data):
