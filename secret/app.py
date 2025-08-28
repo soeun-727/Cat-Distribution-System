@@ -10,7 +10,7 @@ users = {
     "guest": "guest"
 }
 
-@app.route("/secret", methods=["GET", "POST"])
+@app.route("/", methods=["GET", "POST"])
 def login():
     error = ""
     # POST일 때는 form에서, GET일 때는 query string에서 username 받음
@@ -44,14 +44,11 @@ def login():
                            exploit_server_url=exploit_server_url,
                            username=safe_username)
 
-@app.route("/secret/", methods=["GET", "POST"])
-def login_slash():
-    return login()
 
 @app.after_request
 def add_cors_headers(response):
     # /secret 경로에서만 CORS 허용
-    if request.path.startswith("/secret"):
+    if request.path.startswith("/"):
         response.headers['Access-Control-Allow-Origin'] = 'http://localhost:777'
         response.headers['Access-Control-Allow-Methods'] = 'GET,POST,OPTIONS'
         response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
