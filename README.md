@@ -1,4 +1,5 @@
 # 문제 풀이 시나리오
+<img width="1570" height="962" alt="스크린샷 2025-09-08 143050" src="https://github.com/user-attachments/assets/5999f202-c3bb-48e4-964c-d166c0fc7fef" />
 
 ## 1. 검색 기능 분석
 
